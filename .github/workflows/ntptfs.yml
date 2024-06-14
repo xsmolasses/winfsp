@@ -9,6 +9,7 @@ on:
         default: ''
 
 env:
+  #${{env.GITHUB_WORKFLOW}}
   reponame: ${{github.event.repository.name}}
   assettag: ${{ github.event.inputs.tag && format('.{0}', github.event.inputs.tag) || '' }}
   SOLUTION_FILE_PATH: tst\ntptfs\ntptfs.sln
@@ -36,7 +37,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{env.reponame}}${{env.assettag}}.build-a64.artifact
+        name: ntptfs${{env.assettag}}.build-a64.artifact
         path: ${{github.workspace}}
         compression-level: 9
 
@@ -58,7 +59,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{env.reponame}}${{env.assettag}}.build-x64.artifact
+        name: ntptfs${{env.assettag}}.build-x64.artifact
         path: ${{github.workspace}}
         compression-level: 9
 
@@ -76,10 +77,10 @@ jobs:
       shell: cmd
       run: |
         "C:\Program Files\7-Zip\7z.exe" x -aos -bb1 "winfsp-2.1.24051.msi.inc.lib.zip"
-        MSBuild -m -p:UseEnv=true -p:Configuration="${{env.BUILD_CONFIGURATION}}" -p:Platform=x86 "${{env.SOLUTION_FILE_PATH}}"
+        MSBuild -m -p:Configuration="${{env.BUILD_CONFIGURATION}}" -p:Platform=x86 "${{env.SOLUTION_FILE_PATH}}"
 
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{env.reponame}}${{env.assettag}}.build-x86.artifact
+        name: ntptfs${{env.assettag}}.build-x86.artifact
         path: ${{github.workspace}}
         compression-level: 9
