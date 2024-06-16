@@ -175,7 +175,7 @@ static NTSTATUS SvcStart(FSP_SERVICE *Service, ULONG argc, PWSTR *argv)
         }
     }
 
-    if (0 == RootPath || 0 == MountPoint)
+    if (0 == RootPath)
         goto usage;
 
     if (0 != DebugLogFile)
