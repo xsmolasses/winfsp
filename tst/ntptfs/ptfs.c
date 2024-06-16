@@ -1326,9 +1326,9 @@ NTSTATUS PtfsCreate(
     Ptfs->AllocationUnit = VolumeParams.SectorSize * VolumeParams.SectorsPerAllocationUnit;
     FileSystem->UserContext = Ptfs;
 
-    Result = FspFileSystemSetMountPoint(FileSystem, MountPoint);
-    if (!NT_SUCCESS(Result))
-        goto exit;
+    //Result = FspFileSystemSetMountPoint(FileSystem, MountPoint);
+    //if (!NT_SUCCESS(Result))
+    //    goto exit;
 
     *PPtfs = Ptfs;
 
