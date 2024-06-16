@@ -159,6 +159,9 @@ NTSTATUS LfsGetFileInfo(
         PWSTR P = (PVOID)((PUINT8)FileAllInfo.V.NameInformation.FileName + RootPrefixLength);
         ULONG L = FileAllInfo.V.NameInformation.FileNameLength - RootPrefixLength;
 
+OutputDebugStringW(P);
+
+        
         if (L'\\' == *P)
         {
             memcpy(OpenFileInfo->NormalizedName, P, L);
