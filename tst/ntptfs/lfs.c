@@ -141,7 +141,8 @@ NTSTATUS LfsGetFileInfo(
 
     Result = STATUS_SUCCESS;
 
-    FileInfo->FileAttributes = FileAllInfo.V.BasicInformation.FileAttributes;
+    FileInfo->FileAttributes = (FsAttributeMask & PtfsReparsePoints) ?
+        FileAllInfo.V.BasicInformation.FileAttributes : FileAllInfo.V.BasicInformation.FileAttribute & ~FILE_ATTRIBUTE_REPARSE_POINT;
     FileInfo->ReparseTag = (FsAttributeMask & PtfsReparsePoints) &&
         0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes) ?
         FileAttrInfo.ReparseTag : 0;
