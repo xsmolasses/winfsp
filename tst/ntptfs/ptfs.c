@@ -575,7 +575,7 @@ static NTSTATUS SetFileSize(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext, UINT64 NewSize, BOOLEAN SetAllocationSize,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    PTFS *Ptfs = FileSystemContext;
+    PTFS *Ptfs = FileSystemContext; // xsmolasses
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     FILE_ALLOCATION_INFORMATION FileAllocInfo;
@@ -607,7 +607,7 @@ static NTSTATUS SetFileSize(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo);
+    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
 
 exit:
     return Result;
@@ -1157,7 +1157,7 @@ static NTSTATUS SetEa(FSP_FILE_SYSTEM *FileSystem,
     PFILE_FULL_EA_INFORMATION Ea, ULONG EaLength,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    PTFS *Ptfs = FileSystemContext;
+    PTFS *Ptfs = FileSystemContext; // xsmolasses
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     NTSTATUS Result;
@@ -1170,7 +1170,7 @@ static NTSTATUS SetEa(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo);
+    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
 
 exit:
     return Result;
@@ -1359,12 +1359,14 @@ NTSTATUS PtfsCreate(
     Ptfs->AllocationUnit = VolumeParams.SectorSize * VolumeParams.SectorsPerAllocationUnit;
     FileSystem->UserContext = Ptfs;
 
+// xsmolasses
     if(0 != MountPoint)
     {
         Result = FspFileSystemSetMountPoint(FileSystem, MountPoint);
         //if (!NT_SUCCESS(Result))
         //    goto exit;
     }
+//
 
     *PPtfs = Ptfs;
 
