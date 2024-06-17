@@ -890,13 +890,6 @@ static NTSTATUS GetReparsePointByName(
     PWSTR FileName, BOOLEAN IsDirectory, PVOID Buffer, PSIZE_T PSize)
 {
     PTFS *Ptfs = FileSystemContext;
-// xsmolasses
-    if (!(Ptfs->FsAttributeMask & PtfsReparsePoints))
-    {
-        Result = STATUS_NOT_A_REPARSE_POINT;
-        goto exit;
-    }
-//
     HANDLE Handle = 0;
     union
     {
@@ -906,6 +899,14 @@ static NTSTATUS GetReparsePointByName(
     SIZE_T ReparseBufferSize;
     ULONG BytesTransferred;
     NTSTATUS Result;
+
+// xsmolasses
+    if (!(Ptfs->FsAttributeMask & PtfsReparsePoints))
+    {
+        Result = STATUS_NOT_A_REPARSE_POINT;
+        goto exit;
+    }
+//
 
     if (0 == Buffer)
     {
