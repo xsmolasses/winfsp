@@ -85,6 +85,8 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
     ULONG SecurityDescriptorSizeNeeded;
     NTSTATUS Result;
 
+info(L"xsmolasses 3: %s", FileName) // xsmolasses
+    
     if ((Ptfs->FsAttributeMask & PtfsReparsePoints) && // xsmolasses redundancy
         0 != (FILE_SUPPORTS_REPARSE_POINTS & Ptfs->FsAttributes) &&
         FspFileSystemFindReparsePoint(FileSystem, GetReparsePointByName, 0, FileName, PFileAttributes))
@@ -92,6 +94,8 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
         Result = STATUS_REPARSE;
         goto exit;
     }
+
+info(L"xsmolasses 4: %s", FileName) // xsmolasses
 
     Result = LfsOpenFile(
         &Handle,
@@ -103,8 +107,11 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
+info(L"xsmolasses 5: %s", FileName) // xsmolasses
+
     if (0 != PFileAttributes) // xsmolasses earmarked
     {
+info(L"xsmolasses 6: %s", FileName) // xsmolasses
         Result = NtQueryInformationFile(
             Handle,
             &Iosb,
@@ -120,7 +127,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
         FspFileSystemGetOperationContext()->Response->Rsp.Create.Opened.FileInfo.FileAttributes =
             FileAttrInfo.FileAttributes;
     }
-
+info(L"xsmolasses 7: %s", FileName) // xsmolasses
     if (0 != PSecurityDescriptorSize)
     {
         Result = NtQuerySecurityObject(
@@ -901,11 +908,13 @@ static NTSTATUS GetReparsePointByName(
     NTSTATUS Result;
 
 // xsmolasses
+info(L"xsmolasses 1: %s", FileName)
     if (!(Ptfs->FsAttributeMask & PtfsReparsePoints))
     {
         Result = STATUS_NOT_A_REPARSE_POINT;
         goto exit;
     }
+info(L"xsmolasses 2: %s", FileName);
 //
 
     if (0 == Buffer)
