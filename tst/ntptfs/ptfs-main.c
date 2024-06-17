@@ -225,13 +225,14 @@ static NTSTATUS SvcStart(FSP_SERVICE *Service, ULONG argc, PWSTR *argv)
 
     MountPoint = FspFileSystemMountPoint(Ptfs->FileSystem);
 
-    info(L"%s -t %ld%s%s -p %s -m %s",
+    info(L"%s -t %ld%s%s -p %s%s%s",
         L"" PROGNAME,
         FileInfoTimeout,
         0 != VolumePrefix && L'\0' != VolumePrefix[0] ? L" -u " : L"",
             0 != VolumePrefix && L'\0' != VolumePrefix[0] ? VolumePrefix : L"",
         RootPath,
-        MountPoint);
+        0 != MountPoint && L'\0' != MountPoint[0] ? L" -m " : L"",
+            0 != MountPoint && L'\0' != MountPoint[0] ? MountPoint : L"");
 
     Service->UserContext = Ptfs;
     Result = STATUS_SUCCESS;
