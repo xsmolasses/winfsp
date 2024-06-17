@@ -38,7 +38,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: ntptfs${{env.assettag}}.build-a64.artifact
-        path: ${{github.workspace}}
+        path: ${{github.workspace}}\tst\ntptfs\build\Release\*.exe
         compression-level: 9
 
   build-x64:
@@ -60,7 +60,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: ntptfs${{env.assettag}}.build-x64.artifact
-        path: ${{github.workspace}}
+        path: ${{github.workspace}}\tst\ntptfs\build\Release\*.exe
         compression-level: 9
 
   build-x86:
@@ -82,5 +82,5 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: ntptfs${{env.assettag}}.build-x86.artifact
-        path: ${{github.workspace}}
+        path: ${{github.workspace}}\tst\ntptfs\build\Release\*.exe
         compression-level: 9
