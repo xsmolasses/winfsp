@@ -85,7 +85,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
     ULONG SecurityDescriptorSizeNeeded;
     NTSTATUS Result;
 
-info(L"xsmolasses 3: %s", FileName); // xsmolasses
+//info(L"xsmolasses 3: %s", FileName); // xsmolasses
     
     if ((Ptfs->FsAttributeMask & PtfsReparsePoints) && // xsmolasses redundancy
         0 != (FILE_SUPPORTS_REPARSE_POINTS & Ptfs->FsAttributes) &&
@@ -95,7 +95,7 @@ info(L"xsmolasses 3: %s", FileName); // xsmolasses
         goto exit;
     }
 
-info(L"xsmolasses 4: %s", FileName); // xsmolasses
+//info(L"xsmolasses 4: %s", FileName); // xsmolasses
 
     Result = LfsOpenFile(
         &Handle,
@@ -107,11 +107,11 @@ info(L"xsmolasses 4: %s", FileName); // xsmolasses
     if (!NT_SUCCESS(Result))
         goto exit;
 
-info(L"xsmolasses 5: %s", FileName); // xsmolasses
+//info(L"xsmolasses 5: %s", FileName); // xsmolasses
 
     if (0 != PFileAttributes) // xsmolasses earmarked
     {
-info(L"xsmolasses 6: %s", FileName); // xsmolasses
+
         Result = NtQueryInformationFile(
             Handle,
             &Iosb,
@@ -120,14 +120,14 @@ info(L"xsmolasses 6: %s", FileName); // xsmolasses
             35/*FileAttributeTagInformation*/);
         if (!NT_SUCCESS(Result))
             goto exit;
-
-        *PFileAttributes = FileAttrInfo.FileAttributes;
+info(L"xsmolasses 6: %s %lu", FileName, FileAttrInfo.FileAttributes); // xsmolasses
+        *PFileAttributes = FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
 
         /* cache FileAttributes for Open */
         FspFileSystemGetOperationContext()->Response->Rsp.Create.Opened.FileInfo.FileAttributes =
-            FileAttrInfo.FileAttributes;
+            FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
     }
-info(L"xsmolasses 7: %s", FileName); // xsmolasses
+info(L"xsmolasses 7: %s %lu", FileName, FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT); // xsmolasses
     if (0 != PSecurityDescriptorSize)
     {
         Result = NtQuerySecurityObject(
@@ -785,9 +785,9 @@ static inline VOID CopyQueryInfoToDirInfo(
     DirInfo->Size = (UINT16)(FIELD_OFFSET(FSP_FSCTL_DIR_INFO, FileNameBuf) +
         QueryInfo->FileNameLength);
     //DirInfo->FileInfo.FileAttributes = (FsAttributeMask & PtfsReparsePoints) ? // xsmolasses todo here
-    DirInfo->FileInfo.FileAttributes = 0 ?
-        QueryInfo->FileAttributes : QueryInfo->FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
-    DirInfo->FileInfo.ReparseTag = 0; // test // != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ?
+    DirInfo->FileInfo.FileAttributes = QueryInfo->FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT; // xsmolasses
+        //QueryInfo->FileAttributes : QueryInfo->FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT; // xsmolasses
+    DirInfo->FileInfo.ReparseTag = 0; // test //0 != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ?
     //    QueryInfo->EaSize : 0;
     DirInfo->FileInfo.AllocationSize = QueryInfo->AllocationSize.QuadPart;
     DirInfo->FileInfo.FileSize = QueryInfo->EndOfFile.QuadPart;
