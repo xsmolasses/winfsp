@@ -175,7 +175,7 @@ static NTSTATUS SvcStart(FSP_SERVICE *Service, ULONG argc, PWSTR *argv)
         }
     }
 
-    if (0 == RootPath)
+    if (0 == RootPath) // xsmolasses
         goto usage;
 
     if (0 != DebugLogFile)
@@ -225,14 +225,14 @@ static NTSTATUS SvcStart(FSP_SERVICE *Service, ULONG argc, PWSTR *argv)
 
     MountPoint = FspFileSystemMountPoint(Ptfs->FileSystem);
 
-    info(L"%s -t %ld%s%s -p %s%s%s",
+    info(L"%s -t %ld%s%s -p %s%s%s", // xsmolasses
         L"" PROGNAME,
         FileInfoTimeout,
         0 != VolumePrefix && L'\0' != VolumePrefix[0] ? L" -u " : L"",
             0 != VolumePrefix && L'\0' != VolumePrefix[0] ? VolumePrefix : L"",
         RootPath,
-        0 != MountPoint && L'\0' != MountPoint[0] ? L" -m " : L"",
-            0 != MountPoint && L'\0' != MountPoint[0] ? MountPoint : L"");
+        0 != MountPoint && L'\0' != MountPoint[0] ? L" -m " : L"", // xsmolasses
+            0 != MountPoint && L'\0' != MountPoint[0] ? MountPoint : L""); // xsmolasses
 
     Service->UserContext = Ptfs;
     Result = STATUS_SUCCESS;
