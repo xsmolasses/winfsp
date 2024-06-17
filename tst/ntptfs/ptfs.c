@@ -229,7 +229,7 @@ static NTSTATUS CreateEx(FSP_FILE_SYSTEM *FileSystem,
             goto exit;
     }
 
-    Result = LfsGetFileInfo(Handle, Ptfs->RootPrefixLength, FileInfo);
+    Result = LfsGetFileInfo(Handle, Ptfs->RootPrefixLength, Ptfs->FsAttributes, FileInfo);
     if (!NT_SUCCESS(Result))
         goto exit;
 
@@ -320,7 +320,7 @@ static NTSTATUS Open(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, Ptfs->RootPrefixLength, FileInfo);
+    Result = LfsGetFileInfo(Handle, Ptfs->RootPrefixLength, Ptfs->FsAttributes, FileInfo);
     if (!NT_SUCCESS(Result))
         goto exit;
 
@@ -378,7 +378,7 @@ static NTSTATUS OverwriteEx(FSP_FILE_SYSTEM *FileSystem,
         goto exit;
     NtClose(NewHandle);
 
-    Result = LfsGetFileInfo(Handle, -1, FileInfo);
+    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributes, FileInfo);
 
 exit:
     return Result;
@@ -489,7 +489,7 @@ static NTSTATUS Write(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, FileInfo);
+    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributes, FileInfo);
 
 exit:
     return Result;
@@ -513,7 +513,7 @@ static NTSTATUS Flush(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, FileInfo);
+    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributes, FileInfo);
 
 exit:
     return Result;
@@ -525,7 +525,7 @@ static NTSTATUS GetFileInfo(FSP_FILE_SYSTEM *FileSystem,
 {
     HANDLE Handle = FileContextHandle;
 
-    return LfsGetFileInfo(Handle, -1, FileInfo);
+    return LfsGetFileInfo(Handle, -1, Ptfs->FsAttributes, FileInfo);
 }
 
 static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
@@ -559,7 +559,7 @@ static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, FileInfo);
+    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributes, FileInfo);
 
 exit:
     return Result;
@@ -600,7 +600,7 @@ static NTSTATUS SetFileSize(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, FileInfo);
+    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributes, FileInfo);
 
 exit:
     return Result;
@@ -1137,7 +1137,7 @@ static NTSTATUS SetEa(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, FileInfo);
+    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributes, FileInfo);
 
 exit:
     return Result;
