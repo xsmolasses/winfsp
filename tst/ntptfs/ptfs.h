@@ -98,7 +98,7 @@ NTSTATUS LfsOpenFile(
 NTSTATUS LfsGetFileInfo(
     HANDLE Handle,
     ULONG RootPrefixLength,
-    ULONG FsAttributes,
+    ULONG FsAttributeMask,
     FSP_FSCTL_FILE_INFO *FileInfo);
 NTSTATUS LfsReadFile(
     HANDLE Handle,
