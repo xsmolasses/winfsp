@@ -356,6 +356,7 @@ static NTSTATUS OverwriteEx(FSP_FILE_SYSTEM *FileSystem,
     PFILE_FULL_EA_INFORMATION Ea, ULONG EaLength,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
+    PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
     HANDLE NewHandle;
     NTSTATUS Result;
@@ -458,6 +459,7 @@ static NTSTATUS Write(FSP_FILE_SYSTEM *FileSystem,
     BOOLEAN WriteToEndOfFile, BOOLEAN ConstrainedIo,
     PULONG PBytesTransferred, FSP_FSCTL_FILE_INFO *FileInfo)
 {
+    PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     FILE_STANDARD_INFORMATION FileStdInfo;
@@ -503,6 +505,7 @@ static NTSTATUS Flush(FSP_FILE_SYSTEM *FileSystem,
     if (0 == FileContext)
         return STATUS_SUCCESS;
 
+    PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     NTSTATUS Result;
@@ -523,6 +526,7 @@ static NTSTATUS GetFileInfo(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
+    PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
 
     return LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo);
@@ -533,6 +537,7 @@ static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
     UINT64 CreationTime, UINT64 LastAccessTime, UINT64 LastWriteTime, UINT64 ChangeTime,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
+    PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     FILE_BASIC_INFORMATION FileBasicInfo;
@@ -569,6 +574,7 @@ static NTSTATUS SetFileSize(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext, UINT64 NewSize, BOOLEAN SetAllocationSize,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
+    PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     FILE_ALLOCATION_INFORMATION FileAllocInfo;
@@ -1125,6 +1131,7 @@ static NTSTATUS SetEa(FSP_FILE_SYSTEM *FileSystem,
     PFILE_FULL_EA_INFORMATION Ea, ULONG EaLength,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
+    PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     NTSTATUS Result;
