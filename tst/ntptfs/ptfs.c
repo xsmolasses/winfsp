@@ -1022,17 +1022,18 @@ static NTSTATUS DeleteReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses ea
     PVOID FileContext,
     PWSTR FileName, PVOID Buffer, SIZE_T Size)
 {
+    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    HANDLE Handle = FileContextHandle;
+    ULONG BytesTransferred;
+    NTSTATUS Result;
+
 // xsmolasses
-    PTFS *Ptfs = FileSystemContext;
     if (!(Ptfs->FsAttributeMask & PtfsReparsePoints))
     {
         Result = STATUS_NOT_A_REPARSE_POINT;
         goto exit;
     }
 //
-    HANDLE Handle = FileContextHandle;
-    ULONG BytesTransferred;
-    NTSTATUS Result;
 
     Result = LfsFsControlFile(
         Handle,
