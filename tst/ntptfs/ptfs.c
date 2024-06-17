@@ -778,7 +778,7 @@ static inline VOID CopyQueryInfoToDirInfo(
         QueryInfo->FileNameLength);
     DirInfo->FileInfo.FileAttributes = QueryInfo->FileAttributes;
     DirInfo->FileInfo.ReparseTag = 0; // test // != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ?
-        QueryInfo->EaSize : 0;
+    //    QueryInfo->EaSize : 0;
     DirInfo->FileInfo.AllocationSize = QueryInfo->AllocationSize.QuadPart;
     DirInfo->FileInfo.FileSize = QueryInfo->EndOfFile.QuadPart;
     DirInfo->FileInfo.CreationTime = QueryInfo->CreationTime.QuadPart;
