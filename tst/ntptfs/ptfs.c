@@ -889,6 +889,9 @@ static NTSTATUS GetReparsePointByName(
     PWSTR FileName, BOOLEAN IsDirectory, PVOID Buffer, PSIZE_T PSize)
 {
     PTFS *Ptfs = FileSystemContext;
+    if (!(Ptfs->FsAttributeMask & PtfsReparsePoints))
+        return STATUS_NOT_A_REPARSE_POINT;
+
     HANDLE Handle = 0;
     union
     {
