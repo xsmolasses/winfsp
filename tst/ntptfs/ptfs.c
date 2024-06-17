@@ -190,9 +190,9 @@ static NTSTATUS CreateEx(FSP_FILE_SYSTEM *FileSystem,
         0 != AllocationSize ? (PLARGE_INTEGER)&AllocationSize : 0,
         0 != FileAttributes ? FileAttributes : FILE_ATTRIBUTE_NORMAL,
         FILE_CREATE,
-        FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT | CreateOptions,
-        ExtraBufferIsReparsePoint ? 0 : ExtraBuffer,
-        ExtraBufferIsReparsePoint ? 0 : ExtraLength);
+        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions, // xsmolasses
+        ExtraBufferIsReparsePoint ? 0 : ExtraBuffer, // xsmolasses earmarked
+        ExtraBufferIsReparsePoint ? 0 : ExtraLength); // xsmolasses earmarked
     if (!NT_SUCCESS(Result) && MAXIMUM_ALLOWED == MaximumAccess)
         switch (Result)
         {
@@ -207,15 +207,15 @@ static NTSTATUS CreateEx(FSP_FILE_SYSTEM *FileSystem,
                 0 != AllocationSize ? (PLARGE_INTEGER)&AllocationSize : 0,
                 0 != FileAttributes ? FileAttributes : FILE_ATTRIBUTE_NORMAL,
                 FILE_CREATE,
-                FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT | CreateOptions,
-                ExtraBufferIsReparsePoint ? 0 : ExtraBuffer,
-                ExtraBufferIsReparsePoint ? 0 : ExtraLength);
+                FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions, // xsmolasses
+                ExtraBufferIsReparsePoint ? 0 : ExtraBuffer, // xsmolasses earmarked
+                ExtraBufferIsReparsePoint ? 0 : ExtraLength); // xsmolasses earmarked
             break;
         }
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    if (ExtraBufferIsReparsePoint)
+    if ((Ptfs->FsAttributeMask & PtfsReparsePoints) && ExtraBufferIsReparsePoint) // xsmolasses earmarked
     {
         /* this can happen on a WSL mount */
         Result = LfsFsControlFile(
@@ -301,7 +301,7 @@ static NTSTATUS Open(FSP_FILE_SYSTEM *FileSystem,
             (Ptfs->HasSecurityPrivilege ? ACCESS_SYSTEM_SECURITY : 0),
         Ptfs->RootHandle,
         FileName,
-        FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT | CreateOptions);
+        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions); // xsmolasses
     if (!NT_SUCCESS(Result) && MAXIMUM_ALLOWED == MaximumAccess)
         switch (Result)
         {
@@ -315,7 +315,7 @@ static NTSTATUS Open(FSP_FILE_SYSTEM *FileSystem,
                     (Ptfs->HasSecurityPrivilege ? ACCESS_SYSTEM_SECURITY : 0),
                 Ptfs->RootHandle,
                 FileName,
-                FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT | CreateOptions);
+                FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions); // xsmolasses
             break;
         }
     if (!NT_SUCCESS(Result))
@@ -373,7 +373,7 @@ static NTSTATUS OverwriteEx(FSP_FILE_SYSTEM *FileSystem,
             (0 != FileAttributes ? FileAttributes : FILE_ATTRIBUTE_NORMAL) :
             FileAttributes,
         ReplaceFileAttributes ? FILE_SUPERSEDE : FILE_OVERWRITE,
-        FILE_OPEN_FOR_BACKUP_INTENT | FILE_OPEN_REPARSE_POINT,
+        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0), // xsmolasses
         Ea,
         EaLength);
     if (!NT_SUCCESS(Result))
@@ -777,7 +777,7 @@ static inline VOID CopyQueryInfoToDirInfo(
     memset(DirInfo, 0, sizeof *DirInfo);
     DirInfo->Size = (UINT16)(FIELD_OFFSET(FSP_FSCTL_DIR_INFO, FileNameBuf) +
         QueryInfo->FileNameLength);
-    //DirInfo->FileInfo.FileAttributes = (FsAttributeMask & PtfsReparsePoints) ?
+    //DirInfo->FileInfo.FileAttributes = (FsAttributeMask & PtfsReparsePoints) ? // xsmolasses todo here
     DirInfo->FileInfo.FileAttributes = 0 ?
         QueryInfo->FileAttributes : QueryInfo->FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
     DirInfo->FileInfo.ReparseTag = 0; // test // != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ?
@@ -790,7 +790,7 @@ static inline VOID CopyQueryInfoToDirInfo(
     DirInfo->FileInfo.ChangeTime = QueryInfo->ChangeTime.QuadPart;
     DirInfo->FileInfo.IndexNumber = QueryInfo->FileId.QuadPart;
     DirInfo->FileInfo.HardLinks = 0;
-    DirInfo->FileInfo.EaSize = 0 != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ?
+    DirInfo->FileInfo.EaSize = 0 != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ? // xsmolasses earmarked
         0 : LfsGetEaSize(QueryInfo->EaSize);
 }
 
@@ -951,10 +951,18 @@ exit:
     return Result;
 }
 
-static NTSTATUS GetReparsePoint(FSP_FILE_SYSTEM *FileSystem,
+static NTSTATUS GetReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earmarked
     PVOID FileContext,
     PWSTR FileName, PVOID Buffer, PSIZE_T PSize)
 {
+// xsmolasses
+    PTFS *Ptfs = FileSystemContext;
+    if (!(Ptfs->FsAttributeMask & PtfsReparsePoints))
+    {
+        Result = STATUS_NOT_A_REPARSE_POINT;
+        goto exit;
+    }
+//
     HANDLE Handle = FileContextHandle;
     ULONG BytesTransferred;
     NTSTATUS Result;
@@ -983,7 +991,7 @@ exit:
     return Result;
 }
 
-static NTSTATUS SetReparsePoint(FSP_FILE_SYSTEM *FileSystem,
+static NTSTATUS SetReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earmarked
     PVOID FileContext,
     PWSTR FileName, PVOID Buffer, SIZE_T Size)
 {
@@ -1008,7 +1016,7 @@ exit:
     return Result;
 }
 
-static NTSTATUS DeleteReparsePoint(FSP_FILE_SYSTEM *FileSystem,
+static NTSTATUS DeleteReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earmarked
     PVOID FileContext,
     PWSTR FileName, PVOID Buffer, SIZE_T Size)
 {
