@@ -102,6 +102,7 @@ NTSTATUS LfsOpenFile(
 NTSTATUS LfsGetFileInfo(
     HANDLE Handle,
     ULONG RootPrefixLength,
+    ULONG FsAttributeMask,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
     FSP_FSCTL_OPEN_FILE_INFO *OpenFileInfo = -1 != RootPrefixLength ?
@@ -125,7 +126,8 @@ NTSTATUS LfsGetFileInfo(
         OpenFileInfo = 0;
     else if (!NT_SUCCESS(Result))
         return Result;
-    if (0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes))
+    if ((FsAttributeMask & PtfsReparsePoints) &&
+        0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes))
     {
         Result = NtQueryInformationFile(
             Handle,
@@ -140,7 +142,8 @@ NTSTATUS LfsGetFileInfo(
     Result = STATUS_SUCCESS;
 
     FileInfo->FileAttributes = FileAllInfo.V.BasicInformation.FileAttributes;
-    FileInfo->ReparseTag = 0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes) ?
+    FileInfo->ReparseTag = (FsAttributeMask & PtfsReparsePoints) &&
+        0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes) ?
         FileAttrInfo.ReparseTag : 0;
     FileInfo->AllocationSize = FileAllInfo.V.StandardInformation.AllocationSize.QuadPart;
     FileInfo->FileSize = FileAllInfo.V.StandardInformation.EndOfFile.QuadPart;
@@ -159,9 +162,6 @@ NTSTATUS LfsGetFileInfo(
         PWSTR P = (PVOID)((PUINT8)FileAllInfo.V.NameInformation.FileName + RootPrefixLength);
         ULONG L = FileAllInfo.V.NameInformation.FileNameLength - RootPrefixLength;
 
-OutputDebugStringW(P);
-
-        
         if (L'\\' == *P)
         {
             memcpy(OpenFileInfo->NormalizedName, P, L);
