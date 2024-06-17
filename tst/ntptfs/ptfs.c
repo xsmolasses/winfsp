@@ -777,7 +777,7 @@ static inline VOID CopyQueryInfoToDirInfo(
     DirInfo->Size = (UINT16)(FIELD_OFFSET(FSP_FSCTL_DIR_INFO, FileNameBuf) +
         QueryInfo->FileNameLength);
     DirInfo->FileInfo.FileAttributes = QueryInfo->FileAttributes;
-    DirInfo->FileInfo.ReparseTag = 0 != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ?
+    DirInfo->FileInfo.ReparseTag = 0; // test // != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ?
         QueryInfo->EaSize : 0;
     DirInfo->FileInfo.AllocationSize = QueryInfo->AllocationSize.QuadPart;
     DirInfo->FileInfo.FileSize = QueryInfo->EndOfFile.QuadPart;
