@@ -102,7 +102,7 @@ NTSTATUS LfsOpenFile(
 NTSTATUS LfsGetFileInfo(
     HANDLE Handle,
     ULONG RootPrefixLength,
-    ULONG FsAttributeMask,
+    ULONG FsAttributeMask, // xsmolasses
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
     FSP_FSCTL_OPEN_FILE_INFO *OpenFileInfo = -1 != RootPrefixLength ?
@@ -126,7 +126,7 @@ NTSTATUS LfsGetFileInfo(
         OpenFileInfo = 0;
     else if (!NT_SUCCESS(Result))
         return Result;
-    if ((FsAttributeMask & PtfsReparsePoints) &&
+    if ((FsAttributeMask & PtfsReparsePoints) && // xsmolasses
         0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes))
     {
         Result = NtQueryInformationFile(
@@ -141,9 +141,9 @@ NTSTATUS LfsGetFileInfo(
 
     Result = STATUS_SUCCESS;
 
-    FileInfo->FileAttributes = (FsAttributeMask & PtfsReparsePoints) ?
-        FileAllInfo.V.BasicInformation.FileAttributes : FileAllInfo.V.BasicInformation.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
-    FileInfo->ReparseTag = (FsAttributeMask & PtfsReparsePoints) &&
+    FileInfo->FileAttributes = (FsAttributeMask & PtfsReparsePoints) ? // xsmolasses
+        FileAllInfo.V.BasicInformation.FileAttributes : FileAllInfo.V.BasicInformation.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT; // xsmolasses
+    FileInfo->ReparseTag = (FsAttributeMask & PtfsReparsePoints) && // xsmolasses
         0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes) ?
         FileAttrInfo.ReparseTag : 0;
     FileInfo->AllocationSize = FileAllInfo.V.StandardInformation.AllocationSize.QuadPart;
