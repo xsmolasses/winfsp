@@ -67,7 +67,7 @@ NTSTATUS LfsCreateFile(
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
 #endif
-    info(L"%08lX LfsCreateFile DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", Result, FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
+    info(L"%08lX LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", Result, FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
     return Result;
 }
 
@@ -97,7 +97,7 @@ NTSTATUS LfsOpenFile(
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
 #endif
-    info(L"%08lX LfsOpenFile DesiredAccess:%08lX OpenOptions:%08lX FileName:%ws", Result, DesiredAccess, OpenOptions, FileName); // xsmolasses
+    info(L"%08lX LfsOpenFile() DesiredAccess:%08lX OpenOptions:%08lX FileName:%ws", Result, DesiredAccess, OpenOptions, FileName); // xsmolasses
     return Result;
 }
 
@@ -180,7 +180,7 @@ NTSTATUS LfsGetFileInfo(
     }
 
 exit:
-    info(L"%08lX LfsGetFileInfo", Result); // xsmolasses
+    info(L"%08lX LfsGetFileInfo()", Result); // xsmolasses
     return Result;
 }
 
@@ -221,7 +221,7 @@ NTSTATUS LfsReadFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"%08lX LfsReadFile", Result); // xsmolasses
+    info(L"%08lX LfsReadFile()", Result); // xsmolasses
     return Result;
 }
 
@@ -262,7 +262,7 @@ NTSTATUS LfsWriteFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"%08lX LfsWriteFile", Result); // xsmolasses
+    info(L"%08lX LfsWriteFile()", Result); // xsmolasses
     return Result;
 }
 
@@ -312,7 +312,7 @@ NTSTATUS LfsQueryDirectoryFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"%08lX LfsQueryDirectoryFile", Result); // xsmolasses
+    info(L"%08lX LfsQueryDirectoryFile()", Result); // xsmolasses
     return Result;
 }
 
@@ -356,6 +356,6 @@ NTSTATUS LfsFsControlFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"%08lX LfsFsControlFile", Result); // xsmolasses
+    info(L"%08lX LfsFsControlFile()", Result); // xsmolasses
     return Result;
 }
