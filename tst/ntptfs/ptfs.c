@@ -64,6 +64,7 @@ static NTSTATUS GetVolumeInfo(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX GetVolumeInfo", Result); // xsmolasses
     return Result;
 }
 
@@ -71,6 +72,7 @@ static NTSTATUS SetVolumeLabel_(FSP_FILE_SYSTEM *FileSystem,
     PWSTR VolumeLabel,
     FSP_FSCTL_VOLUME_INFO *VolumeInfo)
 {
+    info(L"%08lX SetVolumeLabel_", STATUS_INVALID_DEVICE_REQUEST); // xsmolasses
     return STATUS_INVALID_DEVICE_REQUEST;
 }
 
@@ -146,6 +148,8 @@ info(L"xsmolasses 7: %s %lu", FileName, FileAttrInfo.FileAttributes & ~FILE_ATTR
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX GetSecurityByName", Result); // xsmolasses
+
     if (0 != Handle)
         NtClose(Handle);
 
@@ -257,6 +261,8 @@ static NTSTATUS CreateEx(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX CreateEx", Result); // xsmolasses
+
     if (!NT_SUCCESS(Result))
     {
         if (0 != Handle)
@@ -348,6 +354,8 @@ static NTSTATUS Open(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX Open", Result); // xsmolasses
+
     if (!NT_SUCCESS(Result))
     {
         if (0 != Handle)
@@ -390,6 +398,7 @@ static NTSTATUS OverwriteEx(FSP_FILE_SYSTEM *FileSystem,
     Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
 
 exit:
+    info(L"%08lX OverwriteEx", Result); // xsmolasses
     return Result;
 }
 
@@ -433,6 +442,8 @@ static VOID Cleanup(FSP_FILE_SYSTEM *FileSystem,
                 19/*FileAllocationInformation*/);
         }
     }
+
+    info(L"         Cleanup"); // xsmolasses
 }
 
 static VOID Close(FSP_FILE_SYSTEM *FileSystem,
@@ -446,6 +457,8 @@ static VOID Close(FSP_FILE_SYSTEM *FileSystem,
     FspFileSystemDeleteDirectoryBuffer(FileContextDirBuffer);
 
     free(FileContext);
+
+    info(L"         Close"); // xsmolasses
 }
 
 static NTSTATUS Read(FSP_FILE_SYSTEM *FileSystem,
@@ -453,13 +466,17 @@ static NTSTATUS Read(FSP_FILE_SYSTEM *FileSystem,
     PULONG PBytesTransferred)
 {
     HANDLE Handle = FileContextHandle;
+    NTSTATUS Result;
 
-    return LfsReadFile(
+    Result = LfsReadFile(
         Handle,
         Buffer,
         Offset,
         Length,
         PBytesTransferred);
+
+    info(L"%08lX Read", Result); // xsmolasses
+    return Result;
 }
 
 static NTSTATUS Write(FSP_FILE_SYSTEM *FileSystem,
@@ -502,6 +519,7 @@ static NTSTATUS Write(FSP_FILE_SYSTEM *FileSystem,
     Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
 
 exit:
+    info(L"%08lX Write", Result); // xsmolasses
     return Result;
 }
 
@@ -527,6 +545,7 @@ static NTSTATUS Flush(FSP_FILE_SYSTEM *FileSystem,
     Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
 
 exit:
+    info(L"%08lX Flush", Result); // xsmolasses
     return Result;
 }
 
@@ -536,8 +555,11 @@ static NTSTATUS GetFileInfo(FSP_FILE_SYSTEM *FileSystem,
 {
     PTFS *Ptfs = FileSystemContext; // xsmolasses
     HANDLE Handle = FileContextHandle;
+    NTSTATUS Result; // xsmolasses
 
-    return LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    info(L"%08lX GetFileInfo", Result); // xsmolasses
+    return Result // xsmolasses
 }
 
 static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
@@ -575,6 +597,7 @@ static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
     Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
 
 exit:
+    info(L"%08lX SetBasicInfo", Result); // xsmolasses
     return Result;
 }
 
@@ -617,13 +640,19 @@ static NTSTATUS SetFileSize(FSP_FILE_SYSTEM *FileSystem,
     Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
 
 exit:
+    info(L"%08lX SetFileSize", Result); // xsmolasses
     return Result;
 }
 
 static NTSTATUS SetDelete(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext, PWSTR FileName, BOOLEAN DeleteFile)
 {
-    return SetDisposition(FileContextHandle, DeleteFile);
+    NTSTATUS Result; // xsmolasses
+    
+    Result = SetDisposition(FileContextHandle, DeleteFile); // xsmolasses
+    
+    info(L"%08lX SetDelete", Result); // xsmolasses
+    return Result; // xsmolasses
 }
 
 static NTSTATUS SetDisposition(
@@ -670,6 +699,7 @@ static NTSTATUS SetDisposition(
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX SetDisposition", Result); // xsmolasses
     return Result;
 }
 
@@ -738,6 +768,7 @@ static NTSTATUS Rename(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX Rename", Result); // xsmolasses
     return Result;
 }
 
@@ -765,6 +796,7 @@ static NTSTATUS GetSecurity(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX GetSecurity", Result); // xsmolasses
     return Result;
 }
 
@@ -773,8 +805,12 @@ static NTSTATUS SetSecurity(FSP_FILE_SYSTEM *FileSystem,
     SECURITY_INFORMATION SecurityInformation, PSECURITY_DESCRIPTOR ModificationDescriptor)
 {
     HANDLE Handle = FileContextHandle;
-
-    return NtSetSecurityObject(Handle, SecurityInformation, ModificationDescriptor);
+    NTSTATUS Result;
+    
+    Result = NtSetSecurityObject(Handle, SecurityInformation, ModificationDescriptor);
+    
+    info(L"%08lX SetSecurity", Result); // xsmolasses
+    return Result;
 }
 
 static inline VOID CopyQueryInfoToDirInfo(
@@ -799,6 +835,8 @@ static inline VOID CopyQueryInfoToDirInfo(
     DirInfo->FileInfo.HardLinks = 0;
     DirInfo->FileInfo.EaSize = 0 != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ? // xsmolasses earmarked
         0 : LfsGetEaSize(QueryInfo->EaSize);
+    
+    info(L"         CopyQueryInfoToDirInfo"); // xsmolasses
 }
 
 static NTSTATUS BufferedReadDirectory(FSP_FILE_SYSTEM *FileSystem,
@@ -875,11 +913,15 @@ static NTSTATUS BufferedReadDirectory(FSP_FILE_SYSTEM *FileSystem,
     }
 
     if (!NT_SUCCESS(DirBufferResult))
+    {
+        info(L"%08lX BufferedReadDirectory", DirBufferResult); // xsmolasses
         return DirBufferResult;
+    }
 
     FspFileSystemReadDirectoryBuffer(PDirBuffer,
         Marker, Buffer, Length, PBytesTransferred);
 
+    info(L"%08lX BufferedReadDirectory", STATUS_SUCCESS); // xsmolasses
     return STATUS_SUCCESS;
 }
 
@@ -887,9 +929,14 @@ static NTSTATUS ResolveReparsePoints(FSP_FILE_SYSTEM *FileSystem,
     PWSTR FileName, UINT32 ReparsePointIndex, BOOLEAN ResolveLastPathComponent,
     PIO_STATUS_BLOCK PIoStatus, PVOID Buffer, PSIZE_T PSize)
 {
-    return FspFileSystemResolveReparsePoints(FileSystem, GetReparsePointByName, 0,
+    NTSTATUS Result;
+    
+    Result = FspFileSystemResolveReparsePoints(FileSystem, GetReparsePointByName, 0,
         FileName, ReparsePointIndex, ResolveLastPathComponent,
         PIoStatus, Buffer, PSize);
+
+    info(L"%08lX ResolveReparsePoints", Result); // xsmolasses
+    return Result;
 }
 
 static NTSTATUS GetReparsePointByName(
@@ -955,6 +1002,8 @@ info(L"xsmolasses 2: %s", FileName);
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX GetReparsePointByName", Result); // xsmolasses
+    
     if (0 != Handle)
         NtClose(Handle);
 
@@ -999,6 +1048,7 @@ static NTSTATUS GetReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earma
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX GetReparsePoint", Result); // xsmolasses
     return Result;
 }
 
@@ -1024,6 +1074,7 @@ static NTSTATUS SetReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earma
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX SetReparsePoint", Result); // xsmolasses
     return Result;
 }
 
@@ -1058,6 +1109,7 @@ static NTSTATUS DeleteReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses ea
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX DeleteReparsePoint", Result); // xsmolasses
     return Result;
 }
 
@@ -1130,6 +1182,7 @@ done:
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX GetStreamInfo", Result); // xsmolasses
     return Result;
 }
 
@@ -1161,6 +1214,7 @@ static NTSTATUS GetEa(FSP_FILE_SYSTEM *FileSystem,
 
     Result = STATUS_SUCCESS;
 
+    info(L"%08lX GetEa", Result); // xsmolasses
     return Result;
 }
 
@@ -1185,6 +1239,7 @@ static NTSTATUS SetEa(FSP_FILE_SYSTEM *FileSystem,
     Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
 
 exit:
+    info(L"%08lX SetEa", Result); // xsmolasses
     return Result;
 }
 
@@ -1192,6 +1247,7 @@ static VOID DispatcherStopped(FSP_FILE_SYSTEM *FileSystem,
     BOOLEAN Normally)
 {
     FspFileSystemStopServiceIfNecessary(FileSystem, Normally);
+    info(L"         DispatcherStopped"); // xsmolasses
 }
 
 static FSP_FILE_SYSTEM_INTERFACE PtfsInterface =
@@ -1385,6 +1441,8 @@ NTSTATUS PtfsCreate(
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX PtfsCreate", Result); // xsmolasses
+
     if (!NT_SUCCESS(Result))
     {
         free(Ptfs);
@@ -1405,4 +1463,6 @@ VOID PtfsDelete(PTFS *Ptfs)
     CloseHandle(Ptfs->RootHandle);
 
     free(Ptfs);
+
+    info(L"         PtfsDelete"); // xsmolasses
 }
