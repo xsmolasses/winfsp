@@ -559,7 +559,7 @@ static NTSTATUS GetFileInfo(FSP_FILE_SYSTEM *FileSystem,
 
     Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
     info(L"%08lX GetFileInfo", Result); // xsmolasses
-    return Result // xsmolasses
+    return Result; // xsmolasses
 }
 
 static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
