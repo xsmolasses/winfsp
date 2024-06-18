@@ -65,6 +65,8 @@ static NTSTATUS EnablePrivileges(PWSTR PrivilegeName, ...)
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX EnablePrivileges()", Result); // xsmolasses
+
     if (0 != Token)
         CloseHandle(Token);
 
@@ -238,6 +240,8 @@ static NTSTATUS SvcStart(FSP_SERVICE *Service, ULONG argc, PWSTR *argv)
     Result = STATUS_SUCCESS;
 
 exit:
+    info(L"%08lX SvcStart()", Result); // xsmolasses
+
     if (!NT_SUCCESS(Result) && 0 != Ptfs)
         PtfsDelete(Ptfs);
 
@@ -275,6 +279,7 @@ static NTSTATUS SvcStop(FSP_SERVICE *Service)
     FspFileSystemStopDispatcher(Ptfs->FileSystem);
     PtfsDelete(Ptfs);
 
+    info(L"%08lX SvcStop()", STATUS_SUCCESS); // xsmolasses
     return STATUS_SUCCESS;
 }
 
