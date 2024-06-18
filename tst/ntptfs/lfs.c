@@ -43,7 +43,7 @@ NTSTATUS LfsCreateFile(
     PVOID EaBuffer,
     ULONG EaLength)
 {
-    info(L"ENTER:         LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", Result, FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
+    info(L"ENTER:         LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
 
     UNICODE_STRING Ufnm;
     OBJECT_ATTRIBUTES Obja;
