@@ -128,7 +128,7 @@ info(L"GetSecurityByName 4: FileAttributes:%08lX FileName:%ws", FileAttrInfo.Fil
         FspFileSystemGetOperationContext()->Response->Rsp.Create.Opened.FileInfo.FileAttributes =
             FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
     }
-info(L"GetSecurityByName 4: FileAttributes:%08lX FileName:%ws", FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT, FileName); // xsmolasses
+info(L"GetSecurityByName 4: FileAttributes:%08lX FileName:%ws", FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT, FileName); // xsmolasses
     if (0 != PSecurityDescriptorSize)
     {
         Result = NtQuerySecurityObject(
@@ -353,7 +353,7 @@ static NTSTATUS Open(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"%08lX Open() CreateOptions:%08lX GrantedAccess:%08lX FileName:%ws", Result, CreateOptions, GrantedAccess, EaLength); // xsmolasses
+    info(L"%08lX Open() CreateOptions:%08lX GrantedAccess:%08lX FileName:%ws", Result, CreateOptions, GrantedAccess, FileName); // xsmolasses
 
     if (!NT_SUCCESS(Result))
     {
