@@ -87,7 +87,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
     ULONG SecurityDescriptorSizeNeeded;
     NTSTATUS Result;
 
-//info(L"xsmolasses 3: %s", FileName); // xsmolasses
+//info(L"GetSecurityByName 1: %s", FileName); // xsmolasses
     
     if ((Ptfs->FsAttributeMask & PtfsReparsePoints) && // xsmolasses redundancy
         0 != (FILE_SUPPORTS_REPARSE_POINTS & Ptfs->FsAttributes) &&
@@ -97,7 +97,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
         goto exit;
     }
 
-//info(L"xsmolasses 4: %s", FileName); // xsmolasses
+//info(L"GetSecurityByName 2: %s", FileName); // xsmolasses
 
     Result = LfsOpenFile(
         &Handle,
@@ -109,7 +109,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-//info(L"xsmolasses 5: %s", FileName); // xsmolasses
+//info(L"GetSecurityByName 3: %s", FileName); // xsmolasses
 
     if (0 != PFileAttributes) // xsmolasses earmarked
     {
@@ -122,14 +122,14 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
             35/*FileAttributeTagInformation*/);
         if (!NT_SUCCESS(Result))
             goto exit;
-info(L"xsmolasses 6: %s %lu", FileName, FileAttrInfo.FileAttributes); // xsmolasses
+info(L"GetSecurityByName 4: %s %08lX", FileName, FileAttrInfo.FileAttributes); // xsmolasses
         *PFileAttributes = FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
 
         /* cache FileAttributes for Open */
         FspFileSystemGetOperationContext()->Response->Rsp.Create.Opened.FileInfo.FileAttributes =
             FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
     }
-info(L"xsmolasses 7: %s %lu", FileName, FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT); // xsmolasses
+info(L"GetSecurityByName 5: %s %08lX", FileName, FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT); // xsmolasses
     if (0 != PSecurityDescriptorSize)
     {
         Result = NtQuerySecurityObject(
