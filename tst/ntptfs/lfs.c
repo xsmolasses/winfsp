@@ -67,6 +67,7 @@ NTSTATUS LfsCreateFile(
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
 #endif
+    info(L"%08lX LfsCreateFile DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", Result, FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
     return Result;
 }
 
@@ -96,6 +97,7 @@ NTSTATUS LfsOpenFile(
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
 #endif
+    info(L"%08lX LfsOpenFile DesiredAccess:%08lX OpenOptions:%08lX FileName:%ws", Result, DesiredAccess, OpenOptions, FileName); // xsmolasses
     return Result;
 }
 
@@ -125,7 +127,7 @@ NTSTATUS LfsGetFileInfo(
     if (STATUS_BUFFER_OVERFLOW == Result)
         OpenFileInfo = 0;
     else if (!NT_SUCCESS(Result))
-        return Result;
+        goto exit;
     if ((FsAttributeMask & PtfsReparsePoints) && // xsmolasses
         0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes))
     {
@@ -136,7 +138,7 @@ NTSTATUS LfsGetFileInfo(
             sizeof FileAttrInfo,
             35/*FileAttributeTagInformation*/);
         if (!NT_SUCCESS(Result))
-            return Result;
+            goto exit;
     }
 
     Result = STATUS_SUCCESS;
@@ -154,7 +156,8 @@ NTSTATUS LfsGetFileInfo(
     FileInfo->ChangeTime = FileAllInfo.V.BasicInformation.ChangeTime.QuadPart;
     FileInfo->IndexNumber = FileAllInfo.V.InternalInformation.IndexNumber.QuadPart;
     FileInfo->HardLinks = 0;
-    FileInfo->EaSize = LfsGetEaSize(FileAllInfo.V.EaInformation.EaSize);
+    //FileInfo->EaSize = LfsGetEaSize(FileAllInfo.V.EaInformation.EaSize);
+    FileInfo->EaSize = 0; // xsmolasses
 
     if (0 != OpenFileInfo &&
         OpenFileInfo->NormalizedNameSize > sizeof(WCHAR) + FileAllInfo.V.NameInformation.FileNameLength &&
@@ -176,6 +179,8 @@ NTSTATUS LfsGetFileInfo(
         }
     }
 
+exit:
+    info(L"%08lX LfsGetFileInfo", Result); // xsmolasses
     return Result;
 }
 
@@ -192,7 +197,10 @@ NTSTATUS LfsReadFile(
 
     Event = LfsThreadEvent();
     if (0 == Event)
-        return STATUS_INSUFFICIENT_RESOURCES;
+    {
+        Result = STATUS_INSUFFICIENT_RESOURCES;
+        goto exit;
+    }
 
     Result = NtReadFile(
         Handle,
@@ -212,6 +220,8 @@ NTSTATUS LfsReadFile(
 
     *PBytesTransferred = (ULONG)Iosb.Information;
 
+exit:
+    info(L"%08lX LfsReadFile", Result); // xsmolasses
     return Result;
 }
 
@@ -228,7 +238,10 @@ NTSTATUS LfsWriteFile(
 
     Event = LfsThreadEvent();
     if (0 == Event)
-        return STATUS_INSUFFICIENT_RESOURCES;
+    {
+        Result = STATUS_INSUFFICIENT_RESOURCES;
+        goto exit;
+    }
 
     Result = NtWriteFile(
         Handle,
@@ -248,6 +261,8 @@ NTSTATUS LfsWriteFile(
 
     *PBytesTransferred = (ULONG)Iosb.Information;
 
+exit:
+    info(L"%08lX LfsWriteFile", Result); // xsmolasses
     return Result;
 }
 
@@ -268,7 +283,10 @@ NTSTATUS LfsQueryDirectoryFile(
 
     Event = LfsThreadEvent();
     if (0 == Event)
-        return STATUS_INSUFFICIENT_RESOURCES;
+    {
+        Result = STATUS_INSUFFICIENT_RESOURCES;
+        goto exit;
+    }
 
     if (0 != FileName)
         RtlInitUnicodeString(&Ufnm, FileName);
@@ -293,6 +311,8 @@ NTSTATUS LfsQueryDirectoryFile(
 
     *PBytesTransferred = (ULONG)Iosb.Information;
 
+exit:
+    info(L"%08lX LfsQueryDirectoryFile", Result); // xsmolasses
     return Result;
 }
 
@@ -311,7 +331,10 @@ NTSTATUS LfsFsControlFile(
 
     Event = LfsThreadEvent();
     if (0 == Event)
-        return STATUS_INSUFFICIENT_RESOURCES;
+    {
+        Result = STATUS_INSUFFICIENT_RESOURCES;
+        goto exit;
+    }
 
     Result = NtFsControlFile(
         Handle,
@@ -332,5 +355,7 @@ NTSTATUS LfsFsControlFile(
 
     *PBytesTransferred = (ULONG)Iosb.Information;
 
+exit:
+    info(L"%08lX LfsFsControlFile", Result); // xsmolasses
     return Result;
 }
