@@ -43,11 +43,13 @@ NTSTATUS LfsCreateFile(
     PVOID EaBuffer,
     ULONG EaLength)
 {
+    info(L"ENTER:         LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", Result, FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
+
     UNICODE_STRING Ufnm;
     OBJECT_ATTRIBUTES Obja;
     IO_STATUS_BLOCK Iosb;
     NTSTATUS Result;
-
+ 
     RtlInitUnicodeString(&Ufnm, FileName + 1);
     InitializeObjectAttributes(&Obja, &Ufnm, 0, RootHandle, SecurityDescriptor);
 
@@ -67,7 +69,7 @@ NTSTATUS LfsCreateFile(
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
 #endif
-    info(L"%08lX LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", Result, FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
+    info(L"LEAVE:%08lX=LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", Result, FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
     return Result;
 }
 
@@ -78,6 +80,8 @@ NTSTATUS LfsOpenFile(
     PWSTR FileName,
     ULONG OpenOptions)
 {
+    info(L"ENTER:         LfsOpenFile()"); // xsmolasses
+    
     UNICODE_STRING Ufnm;
     OBJECT_ATTRIBUTES Obja;
     IO_STATUS_BLOCK Iosb;
@@ -97,7 +101,7 @@ NTSTATUS LfsOpenFile(
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
 #endif
-    info(L"%08lX LfsOpenFile() DesiredAccess:%08lX OpenOptions:%08lX FileName:%ws", Result, DesiredAccess, OpenOptions, FileName); // xsmolasses
+    info(L"LEAVE:%08lX=LfsOpenFile() DesiredAccess:%08lX OpenOptions:%08lX FileName:%ws", Result, DesiredAccess, OpenOptions, FileName); // xsmolasses
     return Result;
 }
 
@@ -107,6 +111,8 @@ NTSTATUS LfsGetFileInfo(
     ULONG FsAttributeMask, // xsmolasses
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
+    info(L"ENTER:         LfsGetFileInfo()"); // xsmolasses
+
     FSP_FSCTL_OPEN_FILE_INFO *OpenFileInfo = -1 != RootPrefixLength ?
         FspFileSystemGetOpenFileInfo(FileInfo) : 0;
     IO_STATUS_BLOCK Iosb;
@@ -180,7 +186,7 @@ NTSTATUS LfsGetFileInfo(
     }
 
 exit:
-    info(L"%08lX LfsGetFileInfo()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsGetFileInfo()", Result); // xsmolasses
     return Result;
 }
 
@@ -191,6 +197,8 @@ NTSTATUS LfsReadFile(
     ULONG Length,
     PULONG PBytesTransferred)
 {
+    info(L"ENTER:         LfsReadFile()"); // xsmolasses
+
     HANDLE Event;
     IO_STATUS_BLOCK Iosb;
     NTSTATUS Result;
@@ -221,7 +229,7 @@ NTSTATUS LfsReadFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"%08lX LfsReadFile()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsReadFile()", Result); // xsmolasses
     return Result;
 }
 
@@ -232,6 +240,8 @@ NTSTATUS LfsWriteFile(
     ULONG Length,
     PULONG PBytesTransferred)
 {
+    info(L"ENTER:         LfsWriteFile()"); // xsmolasses
+
     HANDLE Event;
     IO_STATUS_BLOCK Iosb;
     NTSTATUS Result;
@@ -262,7 +272,7 @@ NTSTATUS LfsWriteFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"%08lX LfsWriteFile()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsWriteFile()", Result); // xsmolasses
     return Result;
 }
 
@@ -276,6 +286,8 @@ NTSTATUS LfsQueryDirectoryFile(
     BOOLEAN RestartScan,
     PULONG PBytesTransferred)
 {
+    info(L"ENTER:         LfsQueryDirectoryFile()"); // xsmolasses
+
     HANDLE Event;
     UNICODE_STRING Ufnm;
     IO_STATUS_BLOCK Iosb;
@@ -312,7 +324,7 @@ NTSTATUS LfsQueryDirectoryFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"%08lX LfsQueryDirectoryFile()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsQueryDirectoryFile()", Result); // xsmolasses
     return Result;
 }
 
@@ -325,6 +337,8 @@ NTSTATUS LfsFsControlFile(
     ULONG OutputBufferLength,
     PULONG PBytesTransferred)
 {
+    info(L"ENTER:         LfsFsControlFile()"); // xsmolasses
+
     HANDLE Event;
     IO_STATUS_BLOCK Iosb;
     NTSTATUS Result;
@@ -356,6 +370,6 @@ NTSTATUS LfsFsControlFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"%08lX LfsFsControlFile()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsFsControlFile()", Result); // xsmolasses
     return Result;
 }
