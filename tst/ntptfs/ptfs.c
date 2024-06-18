@@ -87,7 +87,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
     ULONG SecurityDescriptorSizeNeeded;
     NTSTATUS Result;
 
-//info(L"GetSecurityByName 1: FileName:%ws", FileName); // xsmolasses
+//info(L"GetSecurityByName() 1: FileName:%ws", FileName); // xsmolasses
     
     if ((Ptfs->FsAttributeMask & PtfsReparsePoints) && // xsmolasses redundancy
         0 != (FILE_SUPPORTS_REPARSE_POINTS & Ptfs->FsAttributes) &&
@@ -97,7 +97,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
         goto exit;
     }
 
-//info(L"GetSecurityByName 2: FileName:%ws", FileName); // xsmolasses
+//info(L"GetSecurityByName() 2: FileName:%ws", FileName); // xsmolasses
 
     Result = LfsOpenFile(
         &Handle,
@@ -109,7 +109,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-//info(L"GetSecurityByName 3: FileName:%ws", FileName); // xsmolasses
+//info(L"GetSecurityByName() 3: FileName:%ws", FileName); // xsmolasses
 
     if (0 != PFileAttributes) // xsmolasses earmarked
     {
@@ -121,14 +121,14 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
             35/*FileAttributeTagInformation*/);
         if (!NT_SUCCESS(Result))
             goto exit;
-info(L"GetSecurityByName 4: FileAttributes:%08lX FileName:%ws", FileAttrInfo.FileAttributes, FileName); // xsmolasses
-        *PFileAttributes = FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
+info(L"GetSecurityByName() 4: FileAttributes:%08lX FileName:%ws", FileAttrInfo.FileAttributes, FileName); // xsmolasses
+        *PFileAttributes = FileAttrInfo.FileAttributes & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_NOT_CONTENT_INDEXED|FILE_ATTRIBUTE_REPARSE_POINT); // xsmolasses
 
         /* cache FileAttributes for Open */
         FspFileSystemGetOperationContext()->Response->Rsp.Create.Opened.FileInfo.FileAttributes =
             FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
     }
-info(L"GetSecurityByName 4: FileAttributes:%08lX FileName:%ws", FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT, FileName); // xsmolasses
+info(L"GetSecurityByName() 5: FileAttributes:%08lX FileName:%ws", FileAttrInfo.FileAttributes & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_NOT_CONTENT_INDEXED|FILE_ATTRIBUTE_REPARSE_POINT), FileName); // xsmolasses
     if (0 != PSecurityDescriptorSize)
     {
         Result = NtQuerySecurityObject(
