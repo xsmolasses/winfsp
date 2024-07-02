@@ -90,7 +90,18 @@ NTSTATUS LfsOpenFile(
     NTSTATUS Result;
 
     RtlInitUnicodeString(&Ufnm, FileName + 1);
-    InitializeObjectAttributes(&Obja, &Ufnm, 0, RootHandle, 0);
+    InitializeObjectAttributes(&Obja, &Ufnm, 0, RootHandle, 0); // xsmolasses earmarked
+
+    if(Obja.RootDirectory)
+    {
+        WCHAR szFilePath[MAX_PATH];
+        
+        if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_NT))
+            info("Obja.RootDirectory FILE_NAME_NORMALIZED: %ws\n", szFilePath);
+        
+        if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_NT))
+            info("Obja.RootDirectory FILE_NAME_OPENED: %ws\n", szFilePath);
+    }
 
     info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
 
