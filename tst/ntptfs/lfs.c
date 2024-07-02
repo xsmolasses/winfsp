@@ -105,7 +105,7 @@ NTSTATUS LfsOpenFile(
 
     info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
 
-    if(Obja.RootDirectory)
+    if(PHandle && *PHandle)
     {
         WCHAR szFilePath[MAX_PATH];
         
