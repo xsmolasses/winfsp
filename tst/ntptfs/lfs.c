@@ -113,7 +113,7 @@ NTSTATUS LfsOpenFile(
         &Obja,
         &Iosb,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        OpenOptions|FILE_OPEN_REPARSE_POINT);
+        OpenOptions); //|FILE_OPEN_REPARSE_POINT); // xsmolasses earmarked
 #if 0
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
