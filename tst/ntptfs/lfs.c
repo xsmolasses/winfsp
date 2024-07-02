@@ -53,6 +53,8 @@ NTSTATUS LfsCreateFile(
     RtlInitUnicodeString(&Ufnm, FileName + 1);
     InitializeObjectAttributes(&Obja, &Ufnm, 0, RootHandle, SecurityDescriptor);
 
+    info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
+
     Result = NtCreateFile(
         PHandle,
         FILE_READ_ATTRIBUTES | DesiredAccess,
