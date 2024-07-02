@@ -105,17 +105,6 @@ NTSTATUS LfsOpenFile(
 
     info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
 
-    if(PHandle && *PHandle)
-    {
-        WCHAR szFilePath[MAX_PATH];
-        
-        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_NT))
-            info(L"PHandle FILE_NAME_NORMALIZED: %ws", szFilePath);
-        
-        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_NT))
-            info(L"PHandle FILE_NAME_OPENED: %ws", szFilePath);
-    }
-
     Result = NtOpenFile(
         PHandle,
         FILE_READ_ATTRIBUTES | DesiredAccess,
@@ -127,6 +116,18 @@ NTSTATUS LfsOpenFile(
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
 #endif
+
+    if(PHandle && *PHandle)
+    {
+        WCHAR szFilePath[MAX_PATH];
+        
+        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_NT))
+            info(L"PHandle FILE_NAME_NORMALIZED: %ws", szFilePath);
+        
+        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_NT))
+            info(L"PHandle FILE_NAME_OPENED: %ws", szFilePath);
+    }
+    
     info(L"LEAVE:%08lX=LfsOpenFile() DesiredAccess:%08lX OpenOptions:%08lX FileName:%ws", Result, DesiredAccess, OpenOptions, FileName); // xsmolasses
     return Result;
 }
