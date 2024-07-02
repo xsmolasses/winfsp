@@ -96,13 +96,15 @@ NTSTATUS LfsOpenFile(
     {
         WCHAR szFilePath[MAX_PATH];
         
-        if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_NT))
+        if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_DOS)) //|VOLUME_NAME_NT))
             info(L"Obja.RootDirectory FILE_NAME_NORMALIZED: %ws", szFilePath);
         
-        if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_NT))
+        if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_DOS)) //|VOLUME_NAME_NT))
             info(L"Obja.RootDirectory FILE_NAME_OPENED: %ws", szFilePath);
     }
 
+    info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
+    Obja.Attributes|=OBJ_OPENLINK;
     info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
 
     Result = NtOpenFile(
@@ -121,10 +123,10 @@ NTSTATUS LfsOpenFile(
     {
         WCHAR szFilePath[MAX_PATH];
         
-        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_NT))
+        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_DOS)) //|VOLUME_NAME_NT))
             info(L"PHandle FILE_NAME_NORMALIZED: %ws", szFilePath);
         
-        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_NT))
+        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_DOS)) //|VOLUME_NAME_NT))
             info(L"PHandle FILE_NAME_OPENED: %ws", szFilePath);
     }
     
