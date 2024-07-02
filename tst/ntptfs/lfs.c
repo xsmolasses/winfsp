@@ -104,8 +104,8 @@ NTSTATUS LfsOpenFile(
     }
 
     info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
-    Obja.Attributes|=OBJ_OPENLINK;
-    info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
+    //Obja.Attributes|=OBJ_OPENLINK; // DIR: "The parameter is incorrect."
+    //info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
 
     Result = NtOpenFile(
         PHandle,
@@ -113,7 +113,7 @@ NTSTATUS LfsOpenFile(
         &Obja,
         &Iosb,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        OpenOptions);
+        OpenOptions|FILE_OPEN_REPARSE_POINT);
 #if 0
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
