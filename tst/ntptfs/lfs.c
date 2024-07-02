@@ -92,6 +92,8 @@ NTSTATUS LfsOpenFile(
     RtlInitUnicodeString(&Ufnm, FileName + 1);
     InitializeObjectAttributes(&Obja, &Ufnm, 0, RootHandle, 0);
 
+    info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
+
     Result = NtOpenFile(
         PHandle,
         FILE_READ_ATTRIBUTES | DesiredAccess,
