@@ -143,8 +143,6 @@ NTSTATUS LfsGetFileInfo(
 {
     info(L"ENTER:         LfsGetFileInfo()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; //xs
-
     FSP_FSCTL_OPEN_FILE_INFO *OpenFileInfo = -1 != RootPrefixLength ?
         FspFileSystemGetOpenFileInfo(FileInfo) : 0; //xs earmarked
     IO_STATUS_BLOCK Iosb;
