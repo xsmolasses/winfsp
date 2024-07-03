@@ -44,7 +44,7 @@ static NTSTATUS SetDisposition(
 static NTSTATUS GetVolumeInfo(FSP_FILE_SYSTEM *FileSystem,
     FSP_FSCTL_VOLUME_INFO *VolumeInfo)
 {
-    info(L"ENTER:         GetVolumeInfo()"); // xsmolasses
+    info(L"ENTER:         GetVolumeInfo()"); //xs
 
     PTFS *Ptfs = FileSystemContext;
     IO_STATUS_BLOCK Iosb;
@@ -66,7 +66,7 @@ static NTSTATUS GetVolumeInfo(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=GetVolumeInfo()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=GetVolumeInfo()", Result); //xs
     return Result;
 }
 
@@ -74,7 +74,7 @@ static NTSTATUS SetVolumeLabel_(FSP_FILE_SYSTEM *FileSystem,
     PWSTR VolumeLabel,
     FSP_FSCTL_VOLUME_INFO *VolumeInfo)
 {
-    info(L"FIRED:%08lX=SetVolumeLabel_()", STATUS_INVALID_DEVICE_REQUEST); // xsmolasses
+    info(L"FIRED:%08lX=SetVolumeLabel_()", STATUS_INVALID_DEVICE_REQUEST); //xs
     return STATUS_INVALID_DEVICE_REQUEST;
 }
 
@@ -82,7 +82,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
     PWSTR FileName, PUINT32 PFileAttributes/* or ReparsePointIndex */,
     PSECURITY_DESCRIPTOR SecurityDescriptor, SIZE_T *PSecurityDescriptorSize)
 {
-    info(L"ENTER:         GetSecurityByName()"); // xsmolasses
+    info(L"ENTER:         GetSecurityByName()"); //xs
 
     PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = 0;
@@ -91,9 +91,9 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
     ULONG SecurityDescriptorSizeNeeded;
     NTSTATUS Result;
 
-//info(L"GetSecurityByName() 1: FileName:%ws", FileName); // xsmolasses
+//info(L"GetSecurityByName() 1: FileName:%ws", FileName); //xs
     
-    if ((Ptfs->FsAttributeMask & PtfsReparsePoints) && // xsmolasses redundancy
+    if ((Ptfs->FsAttributeMask & PtfsReparsePoints) && //xs redundancy
         0 != (FILE_SUPPORTS_REPARSE_POINTS & Ptfs->FsAttributes) &&
         FspFileSystemFindReparsePoint(FileSystem, GetReparsePointByName, 0, FileName, PFileAttributes))
     {
@@ -101,7 +101,7 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
         goto exit;
     }
 
-//info(L"GetSecurityByName() 2: FileName:%ws", FileName); // xsmolasses
+//info(L"GetSecurityByName() 2: FileName:%ws", FileName); //xs
 
     Result = LfsOpenFile(
         &Handle,
@@ -109,13 +109,13 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
             (Ptfs->HasSecurityPrivilege ? ACCESS_SYSTEM_SECURITY : 0),
         Ptfs->RootHandle,
         FileName,
-        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0)); // xsmolasses
+        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0)); //xs
     if (!NT_SUCCESS(Result))
         goto exit;
 
-//info(L"GetSecurityByName() 3: FileName:%ws", FileName); // xsmolasses
+//info(L"GetSecurityByName() 3: FileName:%ws", FileName); //xs
 
-    if (0 != PFileAttributes) // xsmolasses earmarked
+    if (0 != PFileAttributes) //xs earmarked
     {
         Result = NtQueryInformationFile(
             Handle,
@@ -125,14 +125,14 @@ static NTSTATUS GetSecurityByName(FSP_FILE_SYSTEM *FileSystem,
             35/*FileAttributeTagInformation*/);
         if (!NT_SUCCESS(Result))
             goto exit;
-info(L"GetSecurityByName() 4: FileAttributes:%08lX FileName:%ws", FileAttrInfo.FileAttributes, FileName); // xsmolasses
-        *PFileAttributes = FileAttrInfo.FileAttributes & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_NOT_CONTENT_INDEXED|FILE_ATTRIBUTE_REPARSE_POINT); // xsmolasses
+info(L"GetSecurityByName() 4: FileAttributes:%08lX FileName:%ws", FileAttrInfo.FileAttributes, FileName); //xs
+        *PFileAttributes = FileAttrInfo.FileAttributes & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_NOT_CONTENT_INDEXED|FILE_ATTRIBUTE_REPARSE_POINT); //xs
 
         /* cache FileAttributes for Open */
         FspFileSystemGetOperationContext()->Response->Rsp.Create.Opened.FileInfo.FileAttributes =
             FileAttrInfo.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT;
     }
-info(L"GetSecurityByName() 5: FileAttributes:%08lX FileName:%ws", FileAttrInfo.FileAttributes & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_NOT_CONTENT_INDEXED|FILE_ATTRIBUTE_REPARSE_POINT), FileName); // xsmolasses
+info(L"GetSecurityByName() 5: FileAttributes:%08lX FileName:%ws", FileAttrInfo.FileAttributes & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_NOT_CONTENT_INDEXED|FILE_ATTRIBUTE_REPARSE_POINT), FileName); //xs
     if (0 != PSecurityDescriptorSize)
     {
         Result = NtQuerySecurityObject(
@@ -151,7 +151,7 @@ info(L"GetSecurityByName() 5: FileAttributes:%08lX FileName:%ws", FileAttrInfo.F
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=GetSecurityByName()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=GetSecurityByName()", Result); //xs
 
     if (0 != Handle)
         NtClose(Handle);
@@ -165,7 +165,7 @@ static NTSTATUS CreateEx(FSP_FILE_SYSTEM *FileSystem,
     PVOID ExtraBuffer, ULONG ExtraLength, BOOLEAN ExtraBufferIsReparsePoint,
     PVOID *PFileContext, FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         CreateEx()"); // xsmolasses
+    info(L"ENTER:         CreateEx()"); //xs
 
     PTFS *Ptfs = FileSystemContext;
     FILE_CONTEXT *FileContext = 0;
@@ -206,9 +206,9 @@ static NTSTATUS CreateEx(FSP_FILE_SYSTEM *FileSystem,
         0 != AllocationSize ? (PLARGE_INTEGER)&AllocationSize : 0,
         0 != FileAttributes ? FileAttributes : FILE_ATTRIBUTE_NORMAL,
         FILE_CREATE,
-        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions, // xsmolasses
-        ExtraBufferIsReparsePoint ? 0 : ExtraBuffer, // xsmolasses earmarked
-        ExtraBufferIsReparsePoint ? 0 : ExtraLength); // xsmolasses earmarked
+        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions, //xs
+        ExtraBufferIsReparsePoint ? 0 : ExtraBuffer, //xs earmarked
+        ExtraBufferIsReparsePoint ? 0 : ExtraLength); //xs earmarked
     if (!NT_SUCCESS(Result) && MAXIMUM_ALLOWED == MaximumAccess)
         switch (Result)
         {
@@ -223,15 +223,15 @@ static NTSTATUS CreateEx(FSP_FILE_SYSTEM *FileSystem,
                 0 != AllocationSize ? (PLARGE_INTEGER)&AllocationSize : 0,
                 0 != FileAttributes ? FileAttributes : FILE_ATTRIBUTE_NORMAL,
                 FILE_CREATE,
-                FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions, // xsmolasses
-                ExtraBufferIsReparsePoint ? 0 : ExtraBuffer, // xsmolasses earmarked
-                ExtraBufferIsReparsePoint ? 0 : ExtraLength); // xsmolasses earmarked
+                FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions, //xs
+                ExtraBufferIsReparsePoint ? 0 : ExtraBuffer, //xs earmarked
+                ExtraBufferIsReparsePoint ? 0 : ExtraLength); //xs earmarked
             break;
         }
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    if ((Ptfs->FsAttributeMask & PtfsReparsePoints) && ExtraBufferIsReparsePoint) // xsmolasses earmarked
+    if ((Ptfs->FsAttributeMask & PtfsReparsePoints) && ExtraBufferIsReparsePoint) //xs earmarked
     {
         /* this can happen on a WSL mount */
         Result = LfsFsControlFile(
@@ -246,7 +246,7 @@ static NTSTATUS CreateEx(FSP_FILE_SYSTEM *FileSystem,
             goto exit;
     }
 
-    Result = LfsGetFileInfo(Handle, Ptfs->RootPrefixLength, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, FileName, Ptfs->RootPrefixLength, Ptfs->FsAttributeMask, FileInfo); //xs
     if (!NT_SUCCESS(Result))
         goto exit;
 
@@ -266,7 +266,7 @@ static NTSTATUS CreateEx(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=CreateEx()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=CreateEx()", Result); //xs
 
     if (!NT_SUCCESS(Result))
     {
@@ -283,7 +283,7 @@ static NTSTATUS Open(FSP_FILE_SYSTEM *FileSystem,
     PWSTR FileName, UINT32 CreateOptions, UINT32 GrantedAccess,
     PVOID *PFileContext, FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         Open()"); // xsmolasses
+    info(L"ENTER:         Open()"); //xs
 
     PTFS *Ptfs = FileSystemContext;
     FILE_CONTEXT *FileContext = 0;
@@ -321,7 +321,7 @@ static NTSTATUS Open(FSP_FILE_SYSTEM *FileSystem,
             (Ptfs->HasSecurityPrivilege ? ACCESS_SYSTEM_SECURITY : 0),
         Ptfs->RootHandle,
         FileName,
-        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions); // xsmolasses
+        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions); //xs
     if (!NT_SUCCESS(Result) && MAXIMUM_ALLOWED == MaximumAccess)
         switch (Result)
         {
@@ -335,13 +335,13 @@ static NTSTATUS Open(FSP_FILE_SYSTEM *FileSystem,
                     (Ptfs->HasSecurityPrivilege ? ACCESS_SYSTEM_SECURITY : 0),
                 Ptfs->RootHandle,
                 FileName,
-                FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions); // xsmolasses
+                FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0) | CreateOptions); //xs
             break;
         }
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, Ptfs->RootPrefixLength, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, FileName, Ptfs->RootPrefixLength, Ptfs->FsAttributeMask, FileInfo); //xs
     if (!NT_SUCCESS(Result))
         goto exit;
 
@@ -361,7 +361,7 @@ static NTSTATUS Open(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=Open() CreateOptions:%08lX GrantedAccess:%08lX FileName:%ws", Result, CreateOptions, GrantedAccess, FileName); // xsmolasses
+    info(L"LEAVE:%08lX=Open() CreateOptions:%08lX GrantedAccess:%08lX FileName:%ws", Result, CreateOptions, GrantedAccess, FileName); //xs
 
     if (!NT_SUCCESS(Result))
     {
@@ -379,9 +379,9 @@ static NTSTATUS OverwriteEx(FSP_FILE_SYSTEM *FileSystem,
     PFILE_FULL_EA_INFORMATION Ea, ULONG EaLength,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         OverwriteEx()"); // xsmolasses
+    info(L"ENTER:         OverwriteEx()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    PTFS *Ptfs = FileSystemContext; //xs
     HANDLE Handle = FileContextHandle;
     HANDLE NewHandle;
     NTSTATUS Result;
@@ -397,24 +397,24 @@ static NTSTATUS OverwriteEx(FSP_FILE_SYSTEM *FileSystem,
             (0 != FileAttributes ? FileAttributes : FILE_ATTRIBUTE_NORMAL) :
             FileAttributes,
         ReplaceFileAttributes ? FILE_SUPERSEDE : FILE_OVERWRITE,
-        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0), // xsmolasses
+        FILE_OPEN_FOR_BACKUP_INTENT | ((Ptfs->FsAttributeMask & PtfsReparsePoints) ? FILE_OPEN_REPARSE_POINT : 0), //xs
         Ea,
         EaLength);
     if (!NT_SUCCESS(Result))
         goto exit;
     NtClose(NewHandle);
 
-    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, 0, -1, Ptfs->FsAttributeMask, FileInfo); //xs
 
 exit:
-    info(L"LEAVE:%08lX=OverwriteEx()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=OverwriteEx()", Result); //xs
     return Result;
 }
 
 static VOID Cleanup(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext, PWSTR FileName, ULONG Flags)
 {
-    info(L"ENTER:         Cleanup()"); // xsmolasses
+    info(L"ENTER:         Cleanup()"); //xs
 
     PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
@@ -454,13 +454,13 @@ static VOID Cleanup(FSP_FILE_SYSTEM *FileSystem,
         }
     }
 
-    info(L"LEAVE:         Cleanup()"); // xsmolasses
+    info(L"LEAVE:         Cleanup()"); //xs
 }
 
 static VOID Close(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext)
 {
-    info(L"ENTER:         Close()"); // xsmolasses
+    info(L"ENTER:         Close()"); //xs
 
     HANDLE Handle = FileContextHandle;
 
@@ -471,14 +471,14 @@ static VOID Close(FSP_FILE_SYSTEM *FileSystem,
 
     free(FileContext);
 
-    info(L"LEAVE:         Close()"); // xsmolasses
+    info(L"LEAVE:         Close()"); //xs
 }
 
 static NTSTATUS Read(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext, PVOID Buffer, UINT64 Offset, ULONG Length,
     PULONG PBytesTransferred)
 {
-    info(L"ENTER:         Read()"); // xsmolasses
+    info(L"ENTER:         Read()"); //xs
 
     HANDLE Handle = FileContextHandle;
     NTSTATUS Result;
@@ -490,7 +490,7 @@ static NTSTATUS Read(FSP_FILE_SYSTEM *FileSystem,
         Length,
         PBytesTransferred);
 
-    info(L"LEAVE:%08lX=Read()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=Read()", Result); //xs
     return Result;
 }
 
@@ -499,9 +499,9 @@ static NTSTATUS Write(FSP_FILE_SYSTEM *FileSystem,
     BOOLEAN WriteToEndOfFile, BOOLEAN ConstrainedIo,
     PULONG PBytesTransferred, FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         Write()"); // xsmolasses
+    info(L"ENTER:         Write()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    PTFS *Ptfs = FileSystemContext; //xs
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     FILE_STANDARD_INFORMATION FileStdInfo;
@@ -536,10 +536,10 @@ static NTSTATUS Write(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, 0, -1, Ptfs->FsAttributeMask, FileInfo); //xs
 
 exit:
-    info(L"LEAVE:%08lX=Write()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=Write()", Result); //xs
     return Result;
 }
 
@@ -547,9 +547,9 @@ static NTSTATUS Flush(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         Flush()"); // xsmolasses
+    info(L"ENTER:         Flush()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    PTFS *Ptfs = FileSystemContext; //xs
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     NTSTATUS Result;
@@ -567,10 +567,10 @@ static NTSTATUS Flush(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, 0, -1, Ptfs->FsAttributeMask, FileInfo); //xs
 
 exit:
-    info(L"LEAVE:%08lX=Flush()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=Flush()", Result); //xs
     return Result;
 }
 
@@ -578,16 +578,16 @@ static NTSTATUS GetFileInfo(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         GetFileInfo()"); // xsmolasses
+    info(L"ENTER:         GetFileInfo()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    PTFS *Ptfs = FileSystemContext; //xs
     HANDLE Handle = FileContextHandle;
-    NTSTATUS Result; // xsmolasses
+    NTSTATUS Result; //xs
 
-    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, 0, -1, Ptfs->FsAttributeMask, FileInfo); //xs
     
-    info(L"LEAVE:%08lX=GetFileInfo()", Result); // xsmolasses
-    return Result; // xsmolasses
+    info(L"LEAVE:%08lX=GetFileInfo()", Result); //xs
+    return Result; //xs
 }
 
 static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
@@ -595,9 +595,9 @@ static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
     UINT64 CreationTime, UINT64 LastAccessTime, UINT64 LastWriteTime, UINT64 ChangeTime,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         SetBasicInfo()"); // xsmolasses
+    info(L"ENTER:         SetBasicInfo()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    PTFS *Ptfs = FileSystemContext; //xs
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     FILE_BASIC_INFORMATION FileBasicInfo;
@@ -613,7 +613,7 @@ static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
     FileBasicInfo.LastAccessTime.QuadPart = LastAccessTime;
     FileBasicInfo.LastWriteTime.QuadPart = LastWriteTime;
     FileBasicInfo.ChangeTime.QuadPart = ChangeTime;
-    FileBasicInfo.FileAttributes = FileAttributes; // xsmolasses earmarked
+    FileBasicInfo.FileAttributes = FileAttributes; //xs earmarked
 
     Result = NtSetInformationFile(
         Handle,
@@ -624,10 +624,10 @@ static NTSTATUS SetBasicInfo(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, 0, -1, Ptfs->FsAttributeMask, FileInfo); //xs
 
 exit:
-    info(L"LEAVE:%08lX=SetBasicInfo()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=SetBasicInfo()", Result); //xs
     return Result;
 }
 
@@ -635,9 +635,9 @@ static NTSTATUS SetFileSize(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext, UINT64 NewSize, BOOLEAN SetAllocationSize,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         SetFileSize()"); // xsmolasses
+    info(L"ENTER:         SetFileSize()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    PTFS *Ptfs = FileSystemContext; //xs
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     FILE_ALLOCATION_INFORMATION FileAllocInfo;
@@ -669,30 +669,30 @@ static NTSTATUS SetFileSize(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, 0, -1, Ptfs->FsAttributeMask, FileInfo); //xs
 
 exit:
-    info(L"LEAVE:%08lX=SetFileSize()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=SetFileSize()", Result); //xs
     return Result;
 }
 
 static NTSTATUS SetDelete(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext, PWSTR FileName, BOOLEAN DeleteFile)
 {
-    info(L"ENTER:         SetDelete()"); // xsmolasses
+    info(L"ENTER:         SetDelete()"); //xs
 
-    NTSTATUS Result; // xsmolasses
+    NTSTATUS Result; //xs
     
-    Result = SetDisposition(FileContextHandle, DeleteFile); // xsmolasses
+    Result = SetDisposition(FileContextHandle, DeleteFile); //xs
     
-    info(L"LEAVE:%08lX=SetDelete()", Result); // xsmolasses
-    return Result; // xsmolasses
+    info(L"LEAVE:%08lX=SetDelete()", Result); //xs
+    return Result; //xs
 }
 
 static NTSTATUS SetDisposition(
     HANDLE Handle, BOOLEAN DeleteFile)
 {
-    info(L"ENTER:         SetDisposition()"); // xsmolasses
+    info(L"ENTER:         SetDisposition()"); //xs
 
     IO_STATUS_BLOCK Iosb;
     FILE_DISPOSITION_INFORMATION_EX FileDispInfoEx;
@@ -735,7 +735,7 @@ static NTSTATUS SetDisposition(
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=SetDisposition()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=SetDisposition()", Result); //xs
     return Result;
 }
 
@@ -743,7 +743,7 @@ static NTSTATUS Rename(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext,
     PWSTR FileName, PWSTR NewFileName, BOOLEAN ReplaceIfExists)
 {
-    info(L"ENTER:         Rename()"); // xsmolasses
+    info(L"ENTER:         Rename()"); //xs
 
     PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
@@ -806,7 +806,7 @@ static NTSTATUS Rename(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=Rename()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=Rename()", Result); //xs
     return Result;
 }
 
@@ -814,7 +814,7 @@ static NTSTATUS GetSecurity(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext,
     PSECURITY_DESCRIPTOR SecurityDescriptor, SIZE_T *PSecurityDescriptorSize)
 {
-    info(L"ENTER:         GetSecurity()"); // xsmolasses
+    info(L"ENTER:         GetSecurity()"); //xs
 
     PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
@@ -836,7 +836,7 @@ static NTSTATUS GetSecurity(FSP_FILE_SYSTEM *FileSystem,
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=GetSecurity()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=GetSecurity()", Result); //xs
     return Result;
 }
 
@@ -844,14 +844,14 @@ static NTSTATUS SetSecurity(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext,
     SECURITY_INFORMATION SecurityInformation, PSECURITY_DESCRIPTOR ModificationDescriptor)
 {
-    info(L"ENTER:         SetSecurity()"); // xsmolasses
+    info(L"ENTER:         SetSecurity()"); //xs
 
     HANDLE Handle = FileContextHandle;
     NTSTATUS Result;
     
     Result = NtSetSecurityObject(Handle, SecurityInformation, ModificationDescriptor);
     
-    info(L"LEAVE:%08lX=SetSecurity()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=SetSecurity()", Result); //xs
     return Result;
 }
 
@@ -859,14 +859,14 @@ static inline VOID CopyQueryInfoToDirInfo(
     FILE_ID_BOTH_DIR_INFORMATION *QueryInfo,
     FSP_FSCTL_DIR_INFO *DirInfo)
 {
-    info(L"ENTER:         CopyQueryInfoToDirInfo()"); // xsmolasses
+    info(L"ENTER:         CopyQueryInfoToDirInfo()"); //xs
 
     memset(DirInfo, 0, sizeof *DirInfo);
     DirInfo->Size = (UINT16)(FIELD_OFFSET(FSP_FSCTL_DIR_INFO, FileNameBuf) +
         QueryInfo->FileNameLength);
-    //DirInfo->FileInfo.FileAttributes = (FsAttributeMask & PtfsReparsePoints) ? // xsmolasses todo here
-    DirInfo->FileInfo.FileAttributes = QueryInfo->FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT; // xsmolasses
-        //QueryInfo->FileAttributes : QueryInfo->FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT; // xsmolasses
+    //DirInfo->FileInfo.FileAttributes = (FsAttributeMask & PtfsReparsePoints) ? //xs todo here
+    DirInfo->FileInfo.FileAttributes = QueryInfo->FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT; //xs
+        //QueryInfo->FileAttributes : QueryInfo->FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT; //xs
     DirInfo->FileInfo.ReparseTag = 0; // test //0 != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ?
     //    QueryInfo->EaSize : 0;
     DirInfo->FileInfo.AllocationSize = QueryInfo->AllocationSize.QuadPart;
@@ -877,17 +877,17 @@ static inline VOID CopyQueryInfoToDirInfo(
     DirInfo->FileInfo.ChangeTime = QueryInfo->ChangeTime.QuadPart;
     DirInfo->FileInfo.IndexNumber = QueryInfo->FileId.QuadPart;
     DirInfo->FileInfo.HardLinks = 0;
-    DirInfo->FileInfo.EaSize = 0 != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ? // xsmolasses earmarked
+    DirInfo->FileInfo.EaSize = 0 != (FILE_ATTRIBUTE_REPARSE_POINT & QueryInfo->FileAttributes) ? //xs earmarked
         0 : LfsGetEaSize(QueryInfo->EaSize);
     
-    info(L"LEAVE:         CopyQueryInfoToDirInfo()"); // xsmolasses
+    info(L"LEAVE:         CopyQueryInfoToDirInfo()"); //xs
 }
 
 static NTSTATUS BufferedReadDirectory(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext, PWSTR Pattern, PWSTR Marker,
     PVOID Buffer, ULONG Length, PULONG PBytesTransferred)
 {
-    info(L"ENTER:         BufferedReadDirectory()"); // xsmolasses
+    info(L"ENTER:         BufferedReadDirectory()"); //xs
 
     PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = FileContextHandle;
@@ -960,14 +960,14 @@ static NTSTATUS BufferedReadDirectory(FSP_FILE_SYSTEM *FileSystem,
 
     if (!NT_SUCCESS(DirBufferResult))
     {
-        info(L"LEAVE:%08lX=BufferedReadDirectory()", DirBufferResult); // xsmolasses
+        info(L"LEAVE:%08lX=BufferedReadDirectory()", DirBufferResult); //xs
         return DirBufferResult;
     }
 
     FspFileSystemReadDirectoryBuffer(PDirBuffer,
         Marker, Buffer, Length, PBytesTransferred);
 
-    info(L"LEAVE:%08lX=BufferedReadDirectory()", STATUS_SUCCESS); // xsmolasses
+    info(L"LEAVE:%08lX=BufferedReadDirectory()", STATUS_SUCCESS); //xs
     return STATUS_SUCCESS;
 }
 
@@ -975,7 +975,7 @@ static NTSTATUS ResolveReparsePoints(FSP_FILE_SYSTEM *FileSystem,
     PWSTR FileName, UINT32 ReparsePointIndex, BOOLEAN ResolveLastPathComponent,
     PIO_STATUS_BLOCK PIoStatus, PVOID Buffer, PSIZE_T PSize)
 {
-    info(L"ENTER:         ResolveReparsePoints()"); // xsmolasses
+    info(L"ENTER:         ResolveReparsePoints()"); //xs
 
     NTSTATUS Result;
     
@@ -983,7 +983,7 @@ static NTSTATUS ResolveReparsePoints(FSP_FILE_SYSTEM *FileSystem,
         FileName, ReparsePointIndex, ResolveLastPathComponent,
         PIoStatus, Buffer, PSize);
 
-    info(L"LEAVE:%08lX=ResolveReparsePoints()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=ResolveReparsePoints()", Result); //xs
     return Result;
 }
 
@@ -991,7 +991,7 @@ static NTSTATUS GetReparsePointByName(
     FSP_FILE_SYSTEM *FileSystem, PVOID Context,
     PWSTR FileName, BOOLEAN IsDirectory, PVOID Buffer, PSIZE_T PSize)
 {
-    info(L"ENTER:         GetReparsePointByName()"); // xsmolasses
+    info(L"ENTER:         GetReparsePointByName()"); //xs
 
     PTFS *Ptfs = FileSystemContext;
     HANDLE Handle = 0;
@@ -1004,7 +1004,7 @@ static NTSTATUS GetReparsePointByName(
     ULONG BytesTransferred;
     NTSTATUS Result;
 
-// xsmolasses
+//xs
 info(L"GetReparsePointByName() 1: FileName:%ws", FileName);
     if (!(Ptfs->FsAttributeMask & PtfsReparsePoints))
     {
@@ -1052,7 +1052,7 @@ info(L"GetReparsePointByName() 2: FileName:%ws", FileName);
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=GetReparsePointByName()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=GetReparsePointByName()", Result); //xs
     
     if (0 != Handle)
         NtClose(Handle);
@@ -1060,18 +1060,18 @@ exit:
     return Result;
 }
 
-static NTSTATUS GetReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earmarked
+static NTSTATUS GetReparsePoint(FSP_FILE_SYSTEM *FileSystem, //xs earmarked
     PVOID FileContext,
     PWSTR FileName, PVOID Buffer, PSIZE_T PSize)
 {
-    info(L"ENTER:         GetReparsePoint()"); // xsmolasses
+    info(L"ENTER:         GetReparsePoint()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    PTFS *Ptfs = FileSystemContext; //xs
     HANDLE Handle = FileContextHandle;
     ULONG BytesTransferred;
     NTSTATUS Result;
 
-// xsmolasses
+//xs
     if (!(Ptfs->FsAttributeMask & PtfsReparsePoints))
     {
         Result = STATUS_NOT_A_REPARSE_POINT;
@@ -1100,15 +1100,15 @@ static NTSTATUS GetReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earma
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=GetReparsePoint()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=GetReparsePoint()", Result); //xs
     return Result;
 }
 
-static NTSTATUS SetReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earmarked
+static NTSTATUS SetReparsePoint(FSP_FILE_SYSTEM *FileSystem, //xs earmarked
     PVOID FileContext,
     PWSTR FileName, PVOID Buffer, SIZE_T Size)
 {
-    info(L"ENTER:         SetReparsePoint()"); // xsmolasses
+    info(L"ENTER:         SetReparsePoint()"); //xs
 
     HANDLE Handle = FileContextHandle;
     ULONG BytesTransferred;
@@ -1128,22 +1128,22 @@ static NTSTATUS SetReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earma
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=SetReparsePoint()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=SetReparsePoint()", Result); //xs
     return Result;
 }
 
-static NTSTATUS DeleteReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses earmarked
+static NTSTATUS DeleteReparsePoint(FSP_FILE_SYSTEM *FileSystem, //xs earmarked
     PVOID FileContext,
     PWSTR FileName, PVOID Buffer, SIZE_T Size)
 {
-    info(L"ENTER:         DeleteReparsePoint()"); // xsmolasses
+    info(L"ENTER:         DeleteReparsePoint()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    PTFS *Ptfs = FileSystemContext; //xs
     HANDLE Handle = FileContextHandle;
     ULONG BytesTransferred;
     NTSTATUS Result;
 
-// xsmolasses
+//xs
     if (!(Ptfs->FsAttributeMask & PtfsReparsePoints))
     {
         Result = STATUS_NOT_A_REPARSE_POINT;
@@ -1165,7 +1165,7 @@ static NTSTATUS DeleteReparsePoint(FSP_FILE_SYSTEM *FileSystem, // xsmolasses ea
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=DeleteReparsePoint()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=DeleteReparsePoint()", Result); //xs
     return Result;
 }
 
@@ -1173,7 +1173,7 @@ static NTSTATUS GetStreamInfo(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext, PVOID Buffer, ULONG Length,
     PULONG PBytesTransferred)
 {
-    info(L"ENTER:         GetStreamInfo()"); // xsmolasses
+    info(L"ENTER:         GetStreamInfo()"); //xs
 
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
@@ -1240,7 +1240,7 @@ done:
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=GetStreamInfo()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=GetStreamInfo()", Result); //xs
     return Result;
 }
 
@@ -1248,7 +1248,7 @@ static NTSTATUS GetEa(FSP_FILE_SYSTEM *FileSystem,
     PVOID FileContext,
     PFILE_FULL_EA_INFORMATION Ea, ULONG EaLength, PULONG PBytesTransferred)
 {
-    info(L"ENTER:         GetEa()"); // xsmolasses
+    info(L"ENTER:         GetEa()"); //xs
 
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
@@ -1274,7 +1274,7 @@ static NTSTATUS GetEa(FSP_FILE_SYSTEM *FileSystem,
 
     Result = STATUS_SUCCESS;
 
-    info(L"LEAVE:%08lX=GetEa()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=GetEa()", Result); //xs
     return Result;
 }
 
@@ -1283,9 +1283,9 @@ static NTSTATUS SetEa(FSP_FILE_SYSTEM *FileSystem,
     PFILE_FULL_EA_INFORMATION Ea, ULONG EaLength,
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         SetEa()"); // xsmolasses
+    info(L"ENTER:         SetEa()"); //xs
 
-    PTFS *Ptfs = FileSystemContext; // xsmolasses
+    PTFS *Ptfs = FileSystemContext; //xs
     HANDLE Handle = FileContextHandle;
     IO_STATUS_BLOCK Iosb;
     NTSTATUS Result;
@@ -1298,19 +1298,19 @@ static NTSTATUS SetEa(FSP_FILE_SYSTEM *FileSystem,
     if (!NT_SUCCESS(Result))
         goto exit;
 
-    Result = LfsGetFileInfo(Handle, -1, Ptfs->FsAttributeMask, FileInfo); // xsmolasses
+    Result = LfsGetFileInfo(Handle, 0, -1, Ptfs->FsAttributeMask, FileInfo); //xs
 
 exit:
-    info(L"LEAVE:%08lX=SetEa()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=SetEa()", Result); //xs
     return Result;
 }
 
 static VOID DispatcherStopped(FSP_FILE_SYSTEM *FileSystem,
     BOOLEAN Normally)
 {
-    info(L"ENTER:         DispatcherStopped()"); // xsmolasses
+    info(L"ENTER:         DispatcherStopped()"); //xs
     FspFileSystemStopServiceIfNecessary(FileSystem, Normally);
-    info(L"LEAVE:         DispatcherStopped()"); // xsmolasses
+    info(L"LEAVE:         DispatcherStopped()"); //xs
 }
 
 static FSP_FILE_SYSTEM_INTERFACE PtfsInterface =
@@ -1353,7 +1353,7 @@ NTSTATUS PtfsCreate(
     UINT32 DebugFlags,
     PTFS **PPtfs)
 {
-    info(L"ENTER:         PtfsCreate()"); // xsmolasses
+    info(L"ENTER:         PtfsCreate()"); //xs
 
     PTFS *Ptfs = 0;
     FSP_FILE_SYSTEM *FileSystem = 0;
@@ -1492,7 +1492,7 @@ NTSTATUS PtfsCreate(
     Ptfs->AllocationUnit = VolumeParams.SectorSize * VolumeParams.SectorsPerAllocationUnit;
     FileSystem->UserContext = Ptfs;
 
-// xsmolasses
+//xs
     if(0 != MountPoint)
     {
         Result = FspFileSystemSetMountPoint(FileSystem, MountPoint);
@@ -1506,7 +1506,7 @@ NTSTATUS PtfsCreate(
     Result = STATUS_SUCCESS;
 
 exit:
-    info(L"LEAVE:%08lX=PtfsCreate()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=PtfsCreate()", Result); //xs
 
     if (!NT_SUCCESS(Result))
     {
@@ -1524,12 +1524,12 @@ exit:
 
 VOID PtfsDelete(PTFS *Ptfs)
 {
-    info(L"ENTER:         PtfsDelete()"); // xsmolasses
+    info(L"ENTER:         PtfsDelete()"); //xs
 
     FspFileSystemDelete(Ptfs->FileSystem);
     CloseHandle(Ptfs->RootHandle);
 
     free(Ptfs);
 
-    info(L"LEAVE:         PtfsDelete()"); // xsmolasses
+    info(L"LEAVE:         PtfsDelete()"); //xs
 }
