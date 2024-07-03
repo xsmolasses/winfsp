@@ -97,8 +97,9 @@ NTSTATUS LfsOpenFile(
     ULONG OpenOptions);
 NTSTATUS LfsGetFileInfo(
     HANDLE Handle,
+    PWSTR FileName, //xs
     ULONG RootPrefixLength,
-    ULONG FsAttributeMask, // xsmolasses todo maybe change to FsAttributes
+    ULONG FsAttributeMask, //xs todo maybe change to FsAttributes
     FSP_FSCTL_FILE_INFO *FileInfo);
 NTSTATUS LfsReadFile(
     HANDLE Handle,
