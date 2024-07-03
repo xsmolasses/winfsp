@@ -1,4 +1,4 @@
-name: ntptfs
+name: xsntptfs
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: ntptfs${{env.assettag}}.build-a64.artifact
+        name: xsntptfs${{env.assettag}}.build-a64.artifact
         path: ${{github.workspace}}\tst\ntptfs\build\Release\*.exe
         compression-level: 9
 
@@ -59,7 +59,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: ntptfs${{env.assettag}}.build-x64.artifact
+        name: xsntptfs${{env.assettag}}.build-x64.artifact
         path: ${{github.workspace}}\tst\ntptfs\build\Release\*.exe
         compression-level: 9
 
@@ -81,6 +81,6 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: ntptfs${{env.assettag}}.build-x86.artifact
+        name: xsntptfs${{env.assettag}}.build-x86.artifact
         path: ${{github.workspace}}\tst\ntptfs\build\Release\*.exe
         compression-level: 9
