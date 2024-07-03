@@ -98,9 +98,15 @@ NTSTATUS LfsOpenFile(
         
         if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_DOS)) //|VOLUME_NAME_NT))
             info(L"Obja.RootDirectory FILE_NAME_NORMALIZED: %ws", szFilePath);
-        
+
+        if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_NONE)) //|VOLUME_NAME_NT))
+            info(L"Obja.RootDirectory FILE_NAME_NORMALIZED:       %ws", szFilePath);
+
         if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_DOS)) //|VOLUME_NAME_NT))
-            info(L"Obja.RootDirectory FILE_NAME_OPENED: %ws", szFilePath);
+            info(L"Obja.RootDirectory     FILE_NAME_OPENED: %ws", szFilePath);
+
+        if(GetFinalPathNameByHandleW(Obja.RootDirectory, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_NONE)) //|VOLUME_NAME_NT))
+            info(L"Obja.RootDirectory     FILE_NAME_OPENED:       %ws", szFilePath);
     }
 
     info(L"Obja.Attributes:%08lX", Obja.Attributes); //xs
@@ -124,10 +130,16 @@ NTSTATUS LfsOpenFile(
         WCHAR szFilePath[MAX_PATH];
         
         if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_DOS)) //|VOLUME_NAME_NT))
-            info(L"PHandle FILE_NAME_NORMALIZED: %ws", szFilePath);
-        
+            info(L"PHandle            FILE_NAME_NORMALIZED: %ws", szFilePath);
+
+        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_NORMALIZED|VOLUME_NAME_NONE)) //|VOLUME_NAME_NT))
+            info(L"PHandle            FILE_NAME_NORMALIZED:       %ws", szFilePath);
+
         if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_DOS)) //|VOLUME_NAME_NT))
-            info(L"PHandle FILE_NAME_OPENED: %ws", szFilePath);
+            info(L"PHandle                FILE_NAME_OPENED: %ws", szFilePath);
+
+        if(GetFinalPathNameByHandleW(*PHandle, szFilePath, MAX_PATH, FILE_NAME_OPENED|VOLUME_NAME_NONE)) //|VOLUME_NAME_NT))
+            info(L"PHandle                FILE_NAME_OPENED:       %ws", szFilePath);
     }
     
     info(L"LEAVE:%08lX=LfsOpenFile() DesiredAccess:%08lX OpenOptions:%08lX FileName:%ws", Result, DesiredAccess, OpenOptions, FileName); //xs
@@ -192,19 +204,32 @@ NTSTATUS LfsGetFileInfo(
     FileInfo->ChangeTime = FileAllInfo.V.BasicInformation.ChangeTime.QuadPart;
     FileInfo->IndexNumber = FileAllInfo.V.InternalInformation.IndexNumber.QuadPart;
     FileInfo->HardLinks = 0;
-    //FileInfo->EaSize = LfsGetEaSize(FileAllInfo.V.EaInformation.EaSize);
-    FileInfo->EaSize = 0; //xs
+    //FileInfo->EaSize = LfsGetEaSize(FileAllInfo.V.EaInformation.EaSize); //xs earmarked
+    FileInfo->EaSize = 0; //xs testing purpose
 
-info(L"                               FileName:%ws", FileName); //xs
+info(L"                                 PtfsFileName: %ws", FileName); //xs
 info(L"  RootPrefixLength:%10lu", RootPrefixLength); //xs
-info(L"    FileNameLength:%10lu       FileName:%ws", FileAllInfo.V.NameInformation.FileNameLength, FileAllInfo.V.NameInformation.FileName); //xs
+info(L" LfsFileNameLength:%10lu     LfsFileName: %ws", FileAllInfo.V.NameInformation.FileNameLength, FileAllInfo.V.NameInformation.FileName); //xs
 
     if (0 != OpenFileInfo &&
         OpenFileInfo->NormalizedNameSize > sizeof(WCHAR) + FileAllInfo.V.NameInformation.FileNameLength &&
         RootPrefixLength <= FileAllInfo.V.NameInformation.FileNameLength)
     {
-info(L"NormalizedNameSize:%10lu NormalizedName:%ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); //xs knows not terminated. right now, whatever.
+info(L"NormalizedNameSize:%10lu  NormalizedName: %ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); //xs knows not terminated. right now anything goes.
 
+//xs
+/*
+        FileAllInfo.V.NameInformation.FileNameLength = (ULONG)(wcslen(NewFileName + 1) * sizeof(WCHAR));
+        if (FSP_FSCTL_TRANSACT_PATH_SIZEMAX < FileAllInfo.V.NameInformation.FileNameLength)
+        {
+            Result = STATUS_INVALID_PARAMETER;
+            goto exit;
+        }
+        memcpy(FileRenInfo.V.FileName, NewFileName + 1, FileAllInfo.V.NameInformation.FileNameLength);
+        //memcpy(FileAllInfo.V.NameInformation.FileName, P, L); //xs
+*/
+//xs
+        
         PWSTR P = (PVOID)((PUINT8)FileAllInfo.V.NameInformation.FileName + RootPrefixLength);
         ULONG L = FileAllInfo.V.NameInformation.FileNameLength - RootPrefixLength;
 
@@ -220,7 +245,7 @@ info(L"NormalizedNameSize:%10lu NormalizedName:%ws", OpenFileInfo->NormalizedNam
             OpenFileInfo->NormalizedNameSize = (UINT16)(L + sizeof(WCHAR));
         }
 
-info(L"NormalizedNameSize:%lu NormalizedName:%ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); //xs
+info(L"NormalizedNameSize:%10%lu  NormalizedName: %ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); //xs
     }
 
 exit:
