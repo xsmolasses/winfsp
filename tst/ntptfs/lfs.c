@@ -143,7 +143,7 @@ NTSTATUS LfsGetFileInfo(
     info(L"ENTER:         LfsGetFileInfo()"); // xsmolasses
 
     FSP_FSCTL_OPEN_FILE_INFO *OpenFileInfo = -1 != RootPrefixLength ?
-        FspFileSystemGetOpenFileInfo(FileInfo) : 0;
+        FspFileSystemGetOpenFileInfo(FileInfo) : 0; // xsmolasses earmarked
     IO_STATUS_BLOCK Iosb;
     union
     {
@@ -194,10 +194,15 @@ NTSTATUS LfsGetFileInfo(
     //FileInfo->EaSize = LfsGetEaSize(FileAllInfo.V.EaInformation.EaSize);
     FileInfo->EaSize = 0; // xsmolasses
 
+info(L"  RootPrefixLength:%lu", RootPrefixLength); // xsmolasses
+info(L"    FileNameLength:%lu       FileName:%ws", FileAllInfo.V.NameInformation.FileNameLength, FileAllInfo.V.NameInformation.FileName); // xsmolasses
+
     if (0 != OpenFileInfo &&
         OpenFileInfo->NormalizedNameSize > sizeof(WCHAR) + FileAllInfo.V.NameInformation.FileNameLength &&
         RootPrefixLength <= FileAllInfo.V.NameInformation.FileNameLength)
     {
+info(L"NormalizedNameSize:%lu NormalizedName:%ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); // xsmolasses knows not terminated. right now, whatever.
+
         PWSTR P = (PVOID)((PUINT8)FileAllInfo.V.NameInformation.FileName + RootPrefixLength);
         ULONG L = FileAllInfo.V.NameInformation.FileNameLength - RootPrefixLength;
 
@@ -212,6 +217,8 @@ NTSTATUS LfsGetFileInfo(
             memcpy(OpenFileInfo->NormalizedName + 1, P, L);
             OpenFileInfo->NormalizedNameSize = (UINT16)(L + sizeof(WCHAR));
         }
+
+info(L"NormalizedNameSize:%lu NormalizedName:%ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); // xsmolasses
     }
 
 exit:
