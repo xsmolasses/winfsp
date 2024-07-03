@@ -43,7 +43,7 @@ NTSTATUS LfsCreateFile(
     PVOID EaBuffer,
     ULONG EaLength)
 {
-    info(L"ENTER:         LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
+    info(L"ENTER:         LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); //xs
 
     UNICODE_STRING Ufnm;
     OBJECT_ATTRIBUTES Obja;
@@ -53,7 +53,7 @@ NTSTATUS LfsCreateFile(
     RtlInitUnicodeString(&Ufnm, FileName + 1);
     InitializeObjectAttributes(&Obja, &Ufnm, 0, RootHandle, SecurityDescriptor);
 
-    info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
+    info(L"Obja.Attributes:%08lX", Obja.Attributes); //xs
 
     Result = NtCreateFile(
         PHandle,
@@ -71,7 +71,7 @@ NTSTATUS LfsCreateFile(
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
 #endif
-    info(L"LEAVE:%08lX=LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", Result, FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); // xsmolasses
+    info(L"LEAVE:%08lX=LfsCreateFile() DesiredAccess:%08lX FileAttributes:%08lX CreateDisposition:%08lX CreateOptions:%08lX EaLength:%lu", Result, FILE_READ_ATTRIBUTES | DesiredAccess, FileAttributes, CreateDisposition, CreateOptions, EaLength); //xs
     return Result;
 }
 
@@ -82,7 +82,7 @@ NTSTATUS LfsOpenFile(
     PWSTR FileName,
     ULONG OpenOptions)
 {
-    info(L"ENTER:         LfsOpenFile()"); // xsmolasses
+    info(L"ENTER:         LfsOpenFile()"); //xs
     
     UNICODE_STRING Ufnm;
     OBJECT_ATTRIBUTES Obja;
@@ -90,7 +90,7 @@ NTSTATUS LfsOpenFile(
     NTSTATUS Result;
 
     RtlInitUnicodeString(&Ufnm, FileName + 1);
-    InitializeObjectAttributes(&Obja, &Ufnm, 0, RootHandle, 0); // xsmolasses earmarked
+    InitializeObjectAttributes(&Obja, &Ufnm, 0, RootHandle, 0); //xs earmarked
 
     if(Obja.RootDirectory)
     {
@@ -103,9 +103,9 @@ NTSTATUS LfsOpenFile(
             info(L"Obja.RootDirectory FILE_NAME_OPENED: %ws", szFilePath);
     }
 
-    info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
+    info(L"Obja.Attributes:%08lX", Obja.Attributes); //xs
     //Obja.Attributes|=OBJ_OPENLINK; // DIR: "The parameter is incorrect."
-    //info(L"Obja.Attributes:%08lX", Obja.Attributes); // xsmolasses
+    //info(L"Obja.Attributes:%08lX", Obja.Attributes); //xs
 
     Result = NtOpenFile(
         PHandle,
@@ -113,7 +113,7 @@ NTSTATUS LfsOpenFile(
         &Obja,
         &Iosb,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        OpenOptions); //|FILE_OPEN_REPARSE_POINT); // xsmolasses earmarked
+        OpenOptions); //|FILE_OPEN_REPARSE_POINT); //xs earmarked
 #if 0
     if (STATUS_DELETE_PENDING == Result && IsDebuggerPresent())
         DebugBreak();
@@ -130,20 +130,23 @@ NTSTATUS LfsOpenFile(
             info(L"PHandle FILE_NAME_OPENED: %ws", szFilePath);
     }
     
-    info(L"LEAVE:%08lX=LfsOpenFile() DesiredAccess:%08lX OpenOptions:%08lX FileName:%ws", Result, DesiredAccess, OpenOptions, FileName); // xsmolasses
+    info(L"LEAVE:%08lX=LfsOpenFile() DesiredAccess:%08lX OpenOptions:%08lX FileName:%ws", Result, DesiredAccess, OpenOptions, FileName); //xs
     return Result;
 }
 
 NTSTATUS LfsGetFileInfo(
     HANDLE Handle,
+    PWSTR FileName, //xs
     ULONG RootPrefixLength,
-    ULONG FsAttributeMask, // xsmolasses
+    ULONG FsAttributeMask, //xs
     FSP_FSCTL_FILE_INFO *FileInfo)
 {
-    info(L"ENTER:         LfsGetFileInfo()"); // xsmolasses
+    info(L"ENTER:         LfsGetFileInfo()"); //xs
+
+    PTFS *Ptfs = FileSystemContext; //xs
 
     FSP_FSCTL_OPEN_FILE_INFO *OpenFileInfo = -1 != RootPrefixLength ?
-        FspFileSystemGetOpenFileInfo(FileInfo) : 0; // xsmolasses earmarked
+        FspFileSystemGetOpenFileInfo(FileInfo) : 0; //xs earmarked
     IO_STATUS_BLOCK Iosb;
     union
     {
@@ -163,7 +166,7 @@ NTSTATUS LfsGetFileInfo(
         OpenFileInfo = 0;
     else if (!NT_SUCCESS(Result))
         goto exit;
-    if ((FsAttributeMask & PtfsReparsePoints) && // xsmolasses
+    if ((FsAttributeMask & PtfsReparsePoints) && //xs
         0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes))
     {
         Result = NtQueryInformationFile(
@@ -178,9 +181,9 @@ NTSTATUS LfsGetFileInfo(
 
     Result = STATUS_SUCCESS;
 
-    FileInfo->FileAttributes = (FsAttributeMask & PtfsReparsePoints) ? // xsmolasses
-        FileAllInfo.V.BasicInformation.FileAttributes : FileAllInfo.V.BasicInformation.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT; // xsmolasses
-    FileInfo->ReparseTag = (FsAttributeMask & PtfsReparsePoints) && // xsmolasses
+    FileInfo->FileAttributes = (FsAttributeMask & PtfsReparsePoints) ? //xs
+        FileAllInfo.V.BasicInformation.FileAttributes : FileAllInfo.V.BasicInformation.FileAttributes & ~FILE_ATTRIBUTE_REPARSE_POINT; //xs
+    FileInfo->ReparseTag = (FsAttributeMask & PtfsReparsePoints) && //xs
         0 != (FILE_ATTRIBUTE_REPARSE_POINT & FileAllInfo.V.BasicInformation.FileAttributes) ?
         FileAttrInfo.ReparseTag : 0;
     FileInfo->AllocationSize = FileAllInfo.V.StandardInformation.AllocationSize.QuadPart;
@@ -192,16 +195,17 @@ NTSTATUS LfsGetFileInfo(
     FileInfo->IndexNumber = FileAllInfo.V.InternalInformation.IndexNumber.QuadPart;
     FileInfo->HardLinks = 0;
     //FileInfo->EaSize = LfsGetEaSize(FileAllInfo.V.EaInformation.EaSize);
-    FileInfo->EaSize = 0; // xsmolasses
+    FileInfo->EaSize = 0; //xs
 
-info(L"  RootPrefixLength:%lu", RootPrefixLength); // xsmolasses
-info(L"    FileNameLength:%lu       FileName:%ws", FileAllInfo.V.NameInformation.FileNameLength, FileAllInfo.V.NameInformation.FileName); // xsmolasses
+info(L"                               FileName:%ws", FileName); //xs
+info(L"  RootPrefixLength:%10lu", RootPrefixLength); //xs
+info(L"    FileNameLength:%10lu       FileName:%ws", FileAllInfo.V.NameInformation.FileNameLength, FileAllInfo.V.NameInformation.FileName); //xs
 
     if (0 != OpenFileInfo &&
         OpenFileInfo->NormalizedNameSize > sizeof(WCHAR) + FileAllInfo.V.NameInformation.FileNameLength &&
         RootPrefixLength <= FileAllInfo.V.NameInformation.FileNameLength)
     {
-info(L"NormalizedNameSize:%lu NormalizedName:%ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); // xsmolasses knows not terminated. right now, whatever.
+info(L"NormalizedNameSize:%10lu NormalizedName:%ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); //xs knows not terminated. right now, whatever.
 
         PWSTR P = (PVOID)((PUINT8)FileAllInfo.V.NameInformation.FileName + RootPrefixLength);
         ULONG L = FileAllInfo.V.NameInformation.FileNameLength - RootPrefixLength;
@@ -218,11 +222,11 @@ info(L"NormalizedNameSize:%lu NormalizedName:%ws", OpenFileInfo->NormalizedNameS
             OpenFileInfo->NormalizedNameSize = (UINT16)(L + sizeof(WCHAR));
         }
 
-info(L"NormalizedNameSize:%lu NormalizedName:%ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); // xsmolasses
+info(L"NormalizedNameSize:%lu NormalizedName:%ws", OpenFileInfo->NormalizedNameSize, OpenFileInfo->NormalizedName); //xs
     }
 
 exit:
-    info(L"LEAVE:%08lX=LfsGetFileInfo()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsGetFileInfo()", Result); //xs
     return Result;
 }
 
@@ -233,7 +237,7 @@ NTSTATUS LfsReadFile(
     ULONG Length,
     PULONG PBytesTransferred)
 {
-    info(L"ENTER:         LfsReadFile()"); // xsmolasses
+    info(L"ENTER:         LfsReadFile()"); //xs
 
     HANDLE Event;
     IO_STATUS_BLOCK Iosb;
@@ -265,7 +269,7 @@ NTSTATUS LfsReadFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"LEAVE:%08lX=LfsReadFile()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsReadFile()", Result); //xs
     return Result;
 }
 
@@ -276,7 +280,7 @@ NTSTATUS LfsWriteFile(
     ULONG Length,
     PULONG PBytesTransferred)
 {
-    info(L"ENTER:         LfsWriteFile()"); // xsmolasses
+    info(L"ENTER:         LfsWriteFile()"); //xs
 
     HANDLE Event;
     IO_STATUS_BLOCK Iosb;
@@ -308,7 +312,7 @@ NTSTATUS LfsWriteFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"LEAVE:%08lX=LfsWriteFile()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsWriteFile()", Result); //xs
     return Result;
 }
 
@@ -322,7 +326,7 @@ NTSTATUS LfsQueryDirectoryFile(
     BOOLEAN RestartScan,
     PULONG PBytesTransferred)
 {
-    info(L"ENTER:         LfsQueryDirectoryFile()"); // xsmolasses
+    info(L"ENTER:         LfsQueryDirectoryFile()"); //xs
 
     HANDLE Event;
     UNICODE_STRING Ufnm;
@@ -360,7 +364,7 @@ NTSTATUS LfsQueryDirectoryFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"LEAVE:%08lX=LfsQueryDirectoryFile()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsQueryDirectoryFile()", Result); //xs
     return Result;
 }
 
@@ -373,7 +377,7 @@ NTSTATUS LfsFsControlFile(
     ULONG OutputBufferLength,
     PULONG PBytesTransferred)
 {
-    info(L"ENTER:         LfsFsControlFile()"); // xsmolasses
+    info(L"ENTER:         LfsFsControlFile()"); //xs
 
     HANDLE Event;
     IO_STATUS_BLOCK Iosb;
@@ -406,6 +410,6 @@ NTSTATUS LfsFsControlFile(
     *PBytesTransferred = (ULONG)Iosb.Information;
 
 exit:
-    info(L"LEAVE:%08lX=LfsFsControlFile()", Result); // xsmolasses
+    info(L"LEAVE:%08lX=LfsFsControlFile()", Result); //xs
     return Result;
 }
